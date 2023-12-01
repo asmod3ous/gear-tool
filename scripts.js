@@ -309,8 +309,8 @@ document.getElementById('import').onclick = function() {
 
     var formatted = JSON.stringify(items, null, 2);
     if (!dontshow_topspeed){
-        text = text + "Ran más rapido: " + ran_speed + "\n"
-        text = text + "A.Lots más rapido: " + lots_speed + "\n"
+        text = text + "Fastest Ran: " + ran_speed + "\n"
+        text = text + "Fastest A.lots: " + lots_speed + "\n"
         text = text + "\n"
     }
     text = text + "80+ Total: " + totaleq_80 + "\n"
