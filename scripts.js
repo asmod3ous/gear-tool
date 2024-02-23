@@ -367,7 +367,7 @@ document.getElementById('import').onclick = function() {
     toCompareData["Noctisrem"] = [68, 85, 76, 59, 77]
     toCompareData["Monochico1"] = [61, 72, 84, 70, 85]
     toCompareData["Asmod3ous"] = [80, 72, 77, 66, 78.85]
-    toCompareData["Naberus"] = [72, 87, 75, 31, 77]
+    toCompareData["Naberus"] = [71, 88, 77, 83, 82.8]
 
     labelCompare = toCompare
     dataCompare = toCompareData[toCompare]
