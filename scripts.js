@@ -361,13 +361,12 @@ document.getElementById('import').onclick = function() {
     var marksCanvas = document.getElementById("marksChart");
 
     var toCompareData =  {}
-    toCompareData["Ragnoelt4"] = [79, 86, 87, 83, 87.25]
+    toCompareData["Ragnoelt4"] = [79, 88, 89, 85, 88.75]
     toCompareData["Kundalt"] = [85, 87, 98, 77, 93.2]
     toCompareData["Kaluso"] = [46, 75, 53, 64, 75]
-    toCompareData["Furikun"] = [74, 84, 71, 53, 78]
     toCompareData["Noctisrem"] = [68, 85, 76, 59, 77]
     toCompareData["Monochico1"] = [61, 72, 84, 70, 85]
-    toCompareData["Asmod3ous"] = [79, 71, 76, 45, 79]
+    toCompareData["Asmod3ous"] = [80, 72, 77, 66, 78.85]
     toCompareData["Naberus"] = [72, 87, 75, 31, 77]
 
     labelCompare = toCompare
