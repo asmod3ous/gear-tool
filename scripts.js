@@ -362,7 +362,7 @@ document.getElementById('import').onclick = function() {
 
     var toCompareData =  {}
     toCompareData["Ragnoelt4"] = [79, 88, 89, 85, 88.75]
-    toCompareData["Kundalt"] = [85, 87, 98, 77, 93.2]
+    toCompareData["Kundalt"] = [86, 88, 99, 82, 94.2]
     toCompareData["Kaluso"] = [46, 75, 53, 64, 75]
     toCompareData["Noctisrem"] = [68, 85, 76, 59, 77]
     toCompareData["Monochico1"] = [61, 72, 84, 70, 85]
