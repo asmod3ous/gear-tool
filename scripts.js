@@ -361,6 +361,7 @@ document.getElementById('import').onclick = function() {
     var marksCanvas = document.getElementById("marksChart");
 
     var toCompareData =  {}
+    toCompareData["nobody"] = [100, 100, 100, 100, 100.0]
     toCompareData["Ragnoelt4"] = [79, 88, 89, 85, 88.75]
     toCompareData["Kundalt"] = [86, 88, 99, 82, 94.2]
     toCompareData["Kaluso"] = [46, 75, 53, 64, 75]
