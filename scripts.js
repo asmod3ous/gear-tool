@@ -305,7 +305,7 @@ document.getElementById('import').onclick = function() {
     gear_speed = speed_weapon_s+speed_helmet_s+speed_Armor_s+speed_neck_s+speed_ring_s
     gear_speed += speed_diff[4] + speed_diff[3]
     ran_speed=161 + gear_speed + 45
-    lots_speed=140 + gear_speed + 45      
+    lots_speed=146 + gear_speed + 45      
 
     var formatted = JSON.stringify(items, null, 2);
     if (!dontshow_topspeed){
@@ -370,6 +370,8 @@ document.getElementById('import').onclick = function() {
     toCompareData["Asmod3ous"] = [80, 73, 80, 73, 79.95]
     toCompareData["Naberus"] = [71, 88, 77, 37, 82.8]
     toCompareData["Anonymous"] = [104, 95, 112, 104, 101.1]
+    toCompareData["Lusira"] = [115, 97, 112, 104, 103.9]
+    toCompareData["Anl"] = [101, 97, 89, 83, 92.7]
 
     labelCompare = toCompare
     dataCompare = toCompareData[toCompare]
