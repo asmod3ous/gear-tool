@@ -1846,9 +1846,9 @@ threekindoms = [
     }
     if (total_roll_6_eff >= 20 && total_roll_6_eff_65>=10 && total90 > 600 && total90 <=900 &&
      d5[1]>=90 && d5[1]<=95 ){
-        text = text + "New Name by Pei: PEI EL SUPREMO" + "\n"
+        text = text + "New Name: PEI EL SUPREMO" + "\n"
     }else{
-         text = text + "New Name by Pei: " + bestFitTK + "\n"
+         text = text + "New Name: " + bestFitTK + "\n"
     }
 
 
