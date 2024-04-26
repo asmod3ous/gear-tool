@@ -1,4 +1,6 @@
 document.getElementById('import').onclick = function() {
+
+ 
 	var files = document.getElementById('selectFiles').files;
 
   if (files.length <= 0) {
@@ -15,7 +17,6 @@ document.getElementById('import').onclick = function() {
   fr.onload = function(e) { 
     var result = JSON.parse(e.target.result);
     var items = result.items;
-    console.log(items);
     var text = "";
     var total90=0
     var totaleq_80=0
@@ -359,59 +360,120 @@ document.getElementById('import').onclick = function() {
    
 
     var marksCanvas = document.getElementById("marksChart");
-
+    
     var toCompareData =  {}
     toCompareData["g100"] = [100, 100, 100, 100, 100.0]
     toCompareData["g150"] = [150, 150, 150, 150, 150.0]
     toCompareData["Ragnoelt4"] = [79, 88, 89, 85, 88.75]
     toCompareData["Kundalt"] = [86, 88, 99, 82, 94.2]
-    toCompareData["Kaluso"] = [46, 75, 53, 64, 75]
     toCompareData["Bloodance"] = [89, 92, 97, 76, 93.9]
     toCompareData["Monochico1"] = [77, 86, 88, 65, 85.35]
     toCompareData["Asmod3ous"] = [80, 73, 80, 73, 79.95]
-    toCompareData["Naberus"] = [71, 88, 77, 37, 82.8]
     toCompareData["Anonymous"] = [104, 95, 112, 104, 101.1]
     toCompareData["Lusira"] = [115, 99, 112, 104, 103.9]
     toCompareData["Anl"] = [101, 97, 89, 83, 92.7]
+    toCompareData["Jenazad"] = [101, 93, 103, 91, 95.7]
+
 
     labelCompare = toCompare
     dataCompare = toCompareData[toCompare]
-    var marksData = {
+  
+    var chartColors = {
+      red: 'rgb(255, 99, 132)',
+      orange: 'rgb(255, 159, 64)',
+      yellow: 'rgb(255, 205, 86)',
+      green: 'rgb(75, 192, 192)',
+      blue: 'rgb(54, 162, 235)',
+      purple: 'rgb(153, 102, 255)',
+      grey: 'rgb(231,233,237)'
+      };
+     var color = Chart.helpers.color;
+     
+
+  var marksData = {
     labels: ["Damage", "Speed", "Bruiser", "Support", "Resume"],
     datasets: [{
-        label: "Tú",
-        backgroundColor: "rgba(200,0,0,0.2)",
-        data: d5
+        label: "You",
+        data: d5,
+        fill: true,
+        backgroundColor: color(chartColors.red).alpha(0.2).rgbString(),
+        borderColor: chartColors.red,
+        pointBackgroundColor: chartColors.red,
+        
     }, {
         label: toCompare,
-        backgroundColor: "rgba(0,0,200,0.2)",
-        data: dataCompare
+        data: dataCompare,
+        fill: true,
+        backgroundColor: color(chartColors.blue).alpha(0.2).rgbString(),
+        borderColor: chartColors.blue,
+        pointBackgroundColor: chartColors.blue,
     }]
+    
     };
 
-    var radarChart = new Chart(marksCanvas, {
+    const plugin = {
+      id: 'customCanvasBackgroundColor',
+      beforeDraw: (chart, args, options) => {
+        const {ctx} = chart;
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.fillStyle = options.color || '#99ffff';
+        ctx.fillRect(0, 0, chart.width, chart.height);
+        ctx.restore();
+      }
+    };
+
+   var radarChart =  new Chart(marksCanvas, {
         type: 'radar',
         data: marksData,
+        elements: {
+          line: {
+            borderWidth: 3
+          }
+      },
+        legend: {
+          position: 'top',
+          labels: {
+            fontColor: 'white'
+          }
+        },
+        title: {
+          display: true,
+          text: 'Comparative Chart',
+          fontColor: 'white'
+        },
+        scale: {
+          ticks: {
+            beginAtZero: true,
+            steps:5,
+            fontColor: 'white', // labels such as 10, 20, etc
+            showLabelBackdrop: false // hide square behind text
+          },
+          pointLabels: {
+            fontColor: 'white' // labels around the edge like 'Running'
+          },
+          gridLines: {
+            color: 'rgba(255, 255, 255, 0.2)'
+          },
+          angleLines: {
+            color: 'white' // lines radiating from the center
+          }
+        },
         options: {
-            scale: {
-                ticks: {
-                    beginAtZero: true,
-                    max: 100,
-                    min: 25,
-                    stepSize: 5
-                }
-            },
-            layout: {
-                padding: {
-                    left: 50,
-		    right: 50
-                }
+          plugins: {
+            customCanvasBackgroundColor: {
+              color: 'white',
             }
-        }
-
+          }
+        },
+        plugins: [plugin],
+        
     });
 
-       text = text +  "\n"
+
+  
+
+    text = text +  "\n"
 
     text = text + "Damage: " + d5[0] + " (" + dataCompare[0] + ")\n"
     text = text + "Speed: " + d5[1] + " ("  + dataCompare[1]  + ")\n"
@@ -428,7 +490,7 @@ document.getElementById('import').onclick = function() {
     text = text + "\n"
 
    if (!dontshow_topspeed){
-    text = text + "Máximo Speed: " + Math.max(...top_speed) + "\n"
+    text = text + "Maximum Speed: " + Math.max(...top_speed) + "\n"
    }
     text = text + "Max. ATK (flat): "  + Math.max(...top_Attack) + "\n"
     text = text + "Max. ATK %: "  + Math.max(...top_AttackPercent) + "\n"
