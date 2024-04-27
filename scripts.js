@@ -378,6 +378,8 @@ document.getElementById('import').onclick = function () {
     toCompareData["Lusira"] = [115, 99, 112, 104, 104.9]
     toCompareData["Anl"] = [101, 97, 89, 83, 92.7]
     toCompareData["Jenazad"] = [101, 93, 103, 91, 95.7]
+    toCompareData["dZanderr"] = [103, 100, 113, 110, 109.1]
+
     
 
 
@@ -485,9 +487,9 @@ document.getElementById('import').onclick = function () {
     text = text + "Speed: " + d5[1] + " (" + dataCompare[1] + ")\n"
     text = text + "Bruiser: " + d5[2] + " (" + dataCompare[2] + ")\n"
     text = text + "Support: " + d5[3] + " (" + dataCompare[3] + ")\n"
-    text = text + "Quantity: " + d5[4] + " (" + dataCompare[4] + ")\n"
+    text = text + "Quantity: " + d5[4] + "\n"
 
-    text = text + "Overall : " + overall + "\n"
+    text = text + "Overall : " + overall + " (" + dataCompare[4] + ")\n"
 
     text = text + "\n"
     text = text + "\n"
