@@ -1,15 +1,28 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
+
 <head>
+    <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-5YJQ1Q5F04"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-5YJQ1Q5F04');
+    </script>
+
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/bootstrap-dark.min.css" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/bootstrap-dark.min.css" />
 
     <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">-->
     <title>DR Gear TOOL</title>
 </head>
+
 <body>
     <div class="container mw-90 mh-90">
         <div class="row">
@@ -21,8 +34,8 @@
                                 Epic Seven DR Measurement Gear Tool (Beta)
                             </h2>
                             <p>
-                                This tool works using a Fribbels export save data (Json format), adapted from a Chinese
-                                tool to evaluate account value (DR). 
+                                This tool works using a Fribbels export save data (Json format), Use it to get data from your account and find weakness and define a playstyle.
+                                
                             </p>
                         </div>
                     </div>
@@ -32,18 +45,20 @@
                         <div class="form group">
                             <select class="form-control" id="myList">
                                 <option> ---Select an Option--- </option>
-                                <option selected value="g100"> Compare: Nobody (Just check gear on 100 points scale) </option>
-                                <option value="g150"> Compare: Nobody (Just check gear on 150 points scale) </option>
-                                <option value="Jenazad"> Compare: Jenazad </option>
-                                <option value="Lusira"> Compare: Lusira </option>
-                                <option value="Anl"> Compare: ° Anl </option>
-                                <option value="Ragnoelt4"> Compare: Ragnoelt4 </option>
-                                <option value="Kundalt"> Compare: Kundalt </option>
-				                <option value="Bloodance"> Compare: Bloodance</option>		
-                                <option value="Monochico1"> Compare: Monochico1 </option>
-				                <option value="Asmod3ous"> Compare: Asmod3ous </option>
-                                <option value="Anonymous"> Compare: Anonymous </option>
-                          
+                                <option selected value="plain100"> Compare to: Nobody (Just check gear on 100 points scale)
+                                </option>
+                                <option value="plain150"> Compare to: Nobody (Just check gear on 150 points scale)
+                                </option>
+                                <option value="Jenazad"> Compare to: Jenazad </option>
+                                <option value="Lusira"> Compare to: Lusira </option>
+                                <option value="Anl"> Compare to: ° Anl </option>
+                                <option value="Ragnoelt4"> Compare to: Ragnoelt4 </option>
+                                <option value="Kundalt"> Compare to: Kundalt </option>
+                                <option value="Bloodance"> Compare to: Bloodance</option>
+                                <option value="Monochico1"> Compare to: Monochico1 </option>
+                                <option value="Asmod3ous"> Compare to: Asmod3ous </option>
+                                <option value="Waffle"> Compare to: a waffle </option>
+
 
                             </select>
                         </div>
@@ -52,10 +67,11 @@
                             <label for="scales">Don't Show top speed</label>
                         </div>
                         <div class="form-group d-flex">
+                            
                             <input class="btn btn-primary" type="file" id="selectFiles" value="Import" /><br />
                         </div>
                         <div class="form-group">
-                             <button class="btn btn-primary" id="import">Import and show</button>
+                            <button class="btn btn-primary" id="import">Import and show</button>
                         </div>
 
                     </div>
@@ -88,7 +104,7 @@
                                     Results:
                                 </h4>
                                 <p class="list-group-item-text">
-                                <div class="chart-container" >
+                                <div class="chart-container">
                                     <canvas id="marksChart" width="500" height="500"></canvas>
                                 </div>
                                 </p>
@@ -99,7 +115,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    
+
                     <div class="col-md-12">
                         <div class="list-group">
                             <a href="#" class="list-group-item list-group-item-action active">Gear to Speed Check</a>
@@ -117,7 +133,7 @@
 
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
