@@ -15,6 +15,6 @@ The "Don't Show top Speed" checkbox is used if you want to hide that data, unche
 ## Thanks
 Thanks to the guys who let me put their stats on the page for their communities to compare.
 
-* _To Kundalt, my Friend who gives me the initial Idea_
+* _To Kundalt, my loved Friend who gives me the initial Idea_
 * _To Anl, Lusira, Jenazad, dZanderr, TristenWulf, ExeFalse and all the guys who has shared their stats._
 *  _And of course Fribbels for making a tool dedicated to optimize our accounts_
