@@ -477,7 +477,7 @@ document.getElementById('import').onclick = function () {
           }
         },
         scale: {
-          min: 65,
+          min: 30,
         },
       },
       plugins: [plugin],
