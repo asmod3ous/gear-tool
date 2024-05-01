@@ -373,7 +373,7 @@ document.getElementById('import').onclick = function () {
     toCompareData["Kundalt"] = [86, 88, 99, 82, 94.2]
     toCompareData["Bloodance"] = [89, 92, 97, 76, 93.9]
     toCompareData["Monochico1"] = [77, 86, 88, 65, 85.35]
-    toCompareData["Asmod3ous"] = [80, 73, 80, 73, 79.95]
+    toCompareData["Asmod3ous"] = [80, 81, 81, 73, 81.35]
     toCompareData["Waffle"] = [104, 95, 112, 104, 101.1]
     toCompareData["Lusira"] = [115, 99, 112, 104, 104.9]
     toCompareData["Anl"] = [101, 97, 89, 83, 92.7]
@@ -383,6 +383,7 @@ document.getElementById('import').onclick = function () {
     toCompareData["TristenWulf"] = [99, 97, 99, 85, 98.25]
     toCompareData["Lacari"] = [95, 95, 99, 95, 97]
     toCompareData["TheRubyRose"] = [86, 95, 103, 95, 94.65]
+    toCompareData["ELPGP1"] = [86, 95, 103, 95, 94.65]
 
 
     labelCompare = toCompare
