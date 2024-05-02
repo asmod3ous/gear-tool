@@ -383,7 +383,7 @@ document.getElementById('import').onclick = function () {
     toCompareData["TristenWulf"] = [99, 97, 99, 85, 98.25]
     toCompareData["Lacari"] = [95, 95, 99, 95, 97]
     toCompareData["TheRubyRose"] = [86, 95, 103, 95, 94.65]
-    toCompareData["ELPGP1"] = [86, 95, 103, 95, 94.65]
+    toCompareData["ELPGP1"] = [100, 99, 104, 106, 100.4]
 
 
     labelCompare = toCompare
