@@ -1,6 +1,5 @@
 document.getElementById('import').onclick = function () {
 
-
   var files = document.getElementById('selectFiles').files;
 
   if (files.length <= 0) {
@@ -10,13 +9,21 @@ document.getElementById('import').onclick = function () {
   var mylist = document.getElementById("myList");
   var toCompare = mylist.options[mylist.selectedIndex].value
 
-
   const dontshow_topspeed = document.getElementById('dontshow_topspeed').checked;
+  
   var fr = new FileReader();
 
   fr.onload = function (e) {
     var result = JSON.parse(e.target.result);
     var items = result.items;
+    var heroes = result.heroes;
+    var total_cp = 0;
+    for (var i = 0; i < heroes.length; i++) {
+      var obj = heroes[i];
+      var total_cp = obj['cp'] + total_cp
+    }
+    console.log(total_cp)
+
     var text = "";
     var total90 = 0
     var totaleq_80 = 0
@@ -90,7 +97,7 @@ document.getElementById('import').onclick = function () {
           speed_weapon_s.push(speed)
         }
       }
-
+      
       if (obj["gear"] == "Helmet") {
         speed_helmet.push(speed)
         if (obj["set"] == "SpeedSet") {
@@ -201,7 +208,7 @@ document.getElementById('import').onclick = function () {
         if (speed >= 22)
           totalspeed_sp_22++
       }
-
+      
       var equip_score = obj['reforgedWss']
       equip_score = Number(equip_score)
 
@@ -307,7 +314,7 @@ document.getElementById('import').onclick = function () {
     gear_speed += speed_diff[4] + speed_diff[3]
     ran_speed = 161 + gear_speed + 45
     lots_speed = 146 + gear_speed + 45
-    
+
     var formatted = JSON.stringify(items, null, 2);
     if (!dontshow_topspeed) {
       text = text + "Fastest Ran: " + ran_speed + "\n"
@@ -357,14 +364,17 @@ document.getElementById('import').onclick = function () {
 
 
     d5 = [Math.round(d5[0] * 100), Math.round(d5[1] * 100), Math.round(d5[2] * 100), Math.round(d5[3] * 100), Math.round(d5[4] * 100)]
-  
+
     var marksCanvas = document.getElementById("marksChart");
-   
+
+
     d5_s = d5.slice()
     d5_s.sort();
+
+
     overall = (d5_s[1] * 0.15 + d5_s[2] * 0.15 + d5_s[3] * 0.2 + d5_s[4] * 0.5)
-    
-    d6 = [d5[0],d5[1],d5[2],d5[3],overall]
+
+    d6 = [d5[0], d5[1], d5[2], d5[3], overall]
 
     var toCompareData = {}
     toCompareData["plain100"] = [100, 100, 100, 100, 100.0]
@@ -384,6 +394,7 @@ document.getElementById('import').onclick = function () {
     toCompareData["Lacari"] = [95, 95, 99, 95, 97]
     toCompareData["TheRubyRose"] = [86, 95, 103, 95, 94.65]
     toCompareData["ELPGP1"] = [100, 99, 104, 106, 100.4]
+    toCompareData["WiseGuy"] = [105, 97, 112, 118, 104.65]
 
 
     labelCompare = toCompare
@@ -457,17 +468,17 @@ document.getElementById('import').onclick = function () {
         ticks: {
           beginAtZero: true,
           steps: 5,
-          fontColor: 'white', 
-          showLabelBackdrop: false 
+          fontColor: 'white',
+          showLabelBackdrop: false
         },
         pointLabels: {
-          fontColor: 'white' 
+          fontColor: 'white'
         },
         gridLines: {
           color: 'rgba(255, 255, 255, 0.2)'
         },
         angleLines: {
-          color: 'white' 
+          color: 'white'
         }
       },
       options: {
@@ -483,7 +494,6 @@ document.getElementById('import').onclick = function () {
       plugins: [plugin],
 
     });
-
 
 
 
@@ -628,26 +638,27 @@ document.getElementById('import').onclick = function () {
     }
 
     document.getElementById('result2').value = toEnhanceText;
-    
+
     document.getElementById("tspeed").innerText = Math.max(...top_speed);
     document.getElementById("prog_tspeed").setAttribute('aria-valuenow', Math.max(...top_speed));
-    document.getElementById("prog_tspeed").setAttribute('style', 'width:'+(Math.max(...top_speed) * 100) / 30 + '%' );
+    document.getElementById("prog_tspeed").setAttribute('style', 'width:' + (Math.max(...top_speed) * 100) / 30 + '%');
     document.getElementById("tatk").innerText = Math.max(...top_AttackPercent);
     document.getElementById("prog_tatk").setAttribute('aria-valuenow', Math.max(...top_AttackPercent));
-    document.getElementById("prog_tatk").setAttribute('style', 'width:'+(Math.max(...top_AttackPercent) * 100) / 65 + '%' );
+    document.getElementById("prog_tatk").setAttribute('style', 'width:' + (Math.max(...top_AttackPercent) * 100) / 65 + '%');
     document.getElementById("tdef").innerText = Math.max(...top_DefensePercent);
     document.getElementById("prog_tdef").setAttribute('aria-valuenow', Math.max(...top_DefensePercent));
-    document.getElementById("prog_tdef").setAttribute('style', 'width:'+(Math.max(...top_DefensePercent) * 100) / 65 + '%' );
+    document.getElementById("prog_tdef").setAttribute('style', 'width:' + (Math.max(...top_DefensePercent) * 100) / 65 + '%');
     document.getElementById("tchc").innerText = Math.max(...top_CriticalHitChancePercent);
     document.getElementById("prog_tchc").setAttribute('aria-valuenow', Math.max(...top_CriticalHitChancePercent));
-    document.getElementById("prog_tchc").setAttribute('style', 'width:'+(Math.max(...top_CriticalHitChancePercent) * 100) / 50 + '%' );
+    document.getElementById("prog_tchc").setAttribute('style', 'width:' + (Math.max(...top_CriticalHitChancePercent) * 100) / 50 + '%');
     document.getElementById("tcd").innerText = Math.max(...top_CriticalHitDamagePercent);
     document.getElementById("prog_tcd").setAttribute('aria-valuenow', Math.max(...top_CriticalHitDamagePercent));
-    document.getElementById("prog_tcd").setAttribute('style', 'width:'+(Math.max(...top_CriticalHitDamagePercent) * 100) /  60 + '%' );
+    document.getElementById("prog_tcd").setAttribute('style', 'width:' + (Math.max(...top_CriticalHitDamagePercent) * 100) / 60 + '%');
     document.getElementById("overall").innerText = overall;
     document.getElementById("prog_overall").setAttribute('aria-valuenow', overall);
-    document.getElementById("prog_overall").setAttribute('style', 'width:'+(overall * 100) /  120 + '%' );
+    document.getElementById("prog_overall").setAttribute('style', 'width:' + (overall * 100) / 120 + '%');
   }
+
 
 
   $('#alerts-checks').show();
