@@ -399,7 +399,7 @@ document.getElementById('import').onclick = function () {
 
     labelCompare = toCompare
     dataCompare = toCompareData[toCompare]
-
+ 
     var chartColors = {
       red: 'rgb(255, 99, 132)',
       orange: 'rgb(255, 159, 64)',
