@@ -51,6 +51,7 @@
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
         }
         .container {
             max-width: 1200px;
@@ -66,6 +67,23 @@
         .kpi-table {
             margin-top: 40px;
         }
+        .theme-switch {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+        }
+        .dark-theme {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+        .dark-theme table, .dark-theme th, .dark-theme td {
+            background-color: #2d2d2d;
+            color: #ffffff;
+            border-color: #444;
+        }
+        .dark-theme canvas {
+            background-color: #2d2d2d;
+        }
     </style>
 </head>
 <body>
@@ -75,15 +93,24 @@
             <input type="file" id="jsonInput" accept=".txt" class="form-control">
         </div>
 
-        <!-- Gráfico de barras para Set Counts -->
+        <!-- Theme Switch -->
+        <div class="theme-switch">
+            <button id="themeToggle" class="btn btn-secondary">Toggle Dark/Light Theme</button>
+        </div>
+
+        <!-- Bar Chart for Set Counts -->
         <h3 class="text-center">Gear Pieces by Set (Absolute Count)</h3>
         <canvas id="setBarChart"></canvas>
 
-        <!-- Gráfico polar para Set Counts (% of Total) -->
+        <!-- Polar Chart for Set Percentages -->
         <h3 class="text-center">Gear Pieces by Set (% of Total)</h3>
         <canvas id="setPolarChart"></canvas>
 
-        <!-- Tabla para Set Counts y Gear Types -->
+        <!-- Polar Chart for Gear Type Distribution -->
+        <h3 class="text-center">Gear Pieces by Type (% of Total)</h3>
+        <canvas id="gearTypePolarChart"></canvas>
+
+        <!-- Table for Set Counts and Gear Types -->
         <div id="setCounts" class="mt-4 table-responsive">
             <h3>Total Gear Pieces: <span id="totalGear">0</span></h3>
             <table class="table table-striped table-bordered">
@@ -103,7 +130,7 @@
             </table>
         </div>
 
-        <!-- Tabla para KPIs -->
+        <!-- Table for KPIs -->
         <div id="kpiTable" class="kpi-table table-responsive">
             <h3>KPI Overview</h3>
             <table class="table table-striped table-bordered">
@@ -125,6 +152,15 @@
         const kpiTableBody = document.getElementById('kpiTableBody');
         let setBarChartInstance = null;
         let setPolarChartInstance = null;
+        let gearTypePolarChartInstance = null;
+
+        // Theme Switch
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            themeToggle.textContent = isDark ? 'Switch to Light Theme' : 'Toggle Dark/Light Theme';
+        });
 
         input.addEventListener('change', (event) => {
             const file = event.target.files[0];
@@ -140,7 +176,7 @@
                     const setGearBreakdown = {};
                     const processedGearIds = new Set();
 
-                    // Determinar si la pieza tiene Speed substat y contar rolls >= 4 para Speed
+                    // Determine if the piece has Speed substat and count rolls >= 4 for Speed
                     let speedRollsGreaterThan4SpeedSet = 0;
                     let speedRollsGreaterThan4NonSpeedSet = 0;
                     let speedRollsGreaterThan4Above20 = 0;
@@ -163,7 +199,7 @@
                         }
                     });
 
-                    // Inicializar setGearBreakdown para cada set
+                    // Initialize setGearBreakdown for each set
                     items.forEach(gear => {
                         if (gear && gear.id && gear.set) {
                             const set = gear.set;
@@ -176,7 +212,7 @@
                         }
                     });
 
-                    // Procesar items para contar sets y tipos de gear
+                    // Process items to count sets and gear types
                     items.forEach(gear => {
                         if (gear && gear.id && gear.set && gear.gear) {
                             const set = gear.set;
@@ -192,11 +228,11 @@
                         }
                     });
 
-                    // Calcular el total de piezas
+                    // Calculate the total number of pieces
                     const totalGear = processedGearIds.size;
                     totalGearSpan.textContent = totalGear;
 
-                    // Generar la tabla de Set Counts y Gear Types
+                    // Generate the table for Set Counts and Gear Types
                     setTableBody.innerHTML = '';
                     for (const [set, count] of Object.entries(setCounts).sort()) {
                         const row = document.createElement('tr');
@@ -213,17 +249,17 @@
                         setTableBody.appendChild(row);
                     }
 
-                    // Preparar datos para el gráfico de barras (Set Counts)
+                    // Prepare data for the bar chart (Set Counts)
                     const setLabels = Object.keys(setCounts).sort();
                     const setCountsData = setLabels.map(label => setCounts[label]);
                     const setColors = setLabels.map((_, i) => `hsl(${i * 360 / setLabels.length}, 70%, 50%)`);
 
-                    // Destruir el gráfico de barras si existe
+                    // Destroy the bar chart if it exists
                     if (setBarChartInstance) {
                         setBarChartInstance.destroy();
                     }
 
-                    // Crear el gráfico de barras
+                    // Create the bar chart
                     const setBarCtx = document.getElementById('setBarChart').getContext('2d');
                     setBarChartInstance = new Chart(setBarCtx, {
                         type: 'bar',
@@ -264,17 +300,17 @@
                         }
                     });
 
-                    // Preparar datos para el gráfico polar (% of Total)
+                    // Prepare data for the set polar chart (% of Total)
                     const setPercentages = setLabels.map(label => ((setCounts[label] / totalGear) * 100).toFixed(2));
                     const maxPercentage = Math.max(...setPercentages);
                     const setColorsPolar = setLabels.map((_, i) => `hsl(${i * 360 / setLabels.length}, 70%, 50%)`);
 
-                    // Destruir el gráfico polar si existe
+                    // Destroy the set polar chart if it exists
                     if (setPolarChartInstance) {
                         setPolarChartInstance.destroy();
                     }
 
-                    // Crear el gráfico polar
+                    // Create the set polar chart
                     const setPolarCtx = document.getElementById('setPolarChart').getContext('2d');
                     setPolarChartInstance = new Chart(setPolarCtx, {
                         type: 'polarArea',
@@ -312,7 +348,58 @@
                         }
                     });
 
-                    // Calcular KPIs
+                    // Prepare data for the gear type polar chart (% of Total)
+                    const gearTypeCounts = gearTypes.map(type => {
+                        return items.filter(item => item.gear === type).length;
+                    });
+                    const gearTypePercentages = gearTypeCounts.map(count => ((count / totalGear) * 100).toFixed(2));
+                    const maxGearTypePercentage = Math.max(...gearTypePercentages);
+                    const gearTypeColors = gearTypes.map((_, i) => `hsl(${i * 360 / gearTypes.length}, 70%, 50%)`);
+
+                    // Destroy the gear type polar chart if it exists
+                    if (gearTypePolarChartInstance) {
+                        gearTypePolarChartInstance.destroy();
+                    }
+
+                    // Create the gear type polar chart
+                    const gearTypePolarCtx = document.getElementById('gearTypePolarChart').getContext('2d');
+                    gearTypePolarChartInstance = new Chart(gearTypePolarCtx, {
+                        type: 'polarArea',
+                        data: {
+                            labels: gearTypes,
+                            datasets: [{
+                                label: 'Percentage of Total Gear Pieces by Type',
+                                data: gearTypePercentages,
+                                backgroundColor: gearTypeColors,
+                                borderColor: gearTypeColors,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                r: {
+                                    beginAtZero: true,
+                                    max: maxGearTypePercentage,
+                                    ticks: {
+                                        stepSize: Math.ceil(maxGearTypePercentage / 10),
+                                        callback: value => `${value}%`
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    position: 'top'
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: context => `${context.label}: ${context.raw}%`
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // Calculate KPIs
                     const speedSetItems = items.filter(item => item.set === 'SpeedSet');
                     const speedSetWithSpeedSubstat = speedSetItems.filter(item => item.hasSpeedSubstat).length;
                     const speedSetTotal = speedSetItems.length;
@@ -323,31 +410,28 @@
                     const nonSpeedSetTotal = nonSpeedSetItems.length;
                     const nonSpeedSetSpeedSubstatPercent = nonSpeedSetTotal > 0 ? ((nonSpeedSetWithSpeedSubstat / nonSpeedSetTotal) * 100).toFixed(2) : 0;
 
-                    const gearTypeCounts = gearTypes.map(type => {
-                        return items.filter(item => item.gear === type).length;
-                    });
                     const gearTypeDistribution = gearTypeCounts.map(count => ((count / totalGear) * 100).toFixed(2));
 
-                    // Generar tabla de KPIs
+                    // Generate KPI table
                     kpiTableBody.innerHTML = `
                         <tr>
-                            <td>Cantidad de Piezas de SpeedSet con Speed Substat (% y Cantidad vs Total)</td>
+                            <td>Number of SpeedSet Pieces with Speed Substat (% and Count vs Total)</td>
                             <td>${speedSetWithSpeedSubstatPercent}% (${speedSetWithSpeedSubstat}/${speedSetTotal})</td>
                         </tr>
                         <tr>
-                            <td>Cantidad de Piezas con Cualquier Set (Excepto SpeedSet) con Speed Substat vs Total de Set</td>
+                            <td>Number of Pieces with Any Set (Except SpeedSet) with Speed Substat vs Total of Set</td>
                             <td>${nonSpeedSetSpeedSubstatPercent}% (${nonSpeedSetWithSpeedSubstat}/${nonSpeedSetTotal})</td>
                         </tr>
                         <tr>
-                            <td>Relación de Piezas en Distribución entre los 6 Tipos Principales</td>
+                            <td>Relation of Pieces Distribution among the 6 Main Types</td>
                             <td>Weapon: ${gearTypeDistribution[0]}%, Helmet: ${gearTypeDistribution[1]}%, Armor: ${gearTypeDistribution[2]}%, Necklace: ${gearTypeDistribution[3]}%, Ring: ${gearTypeDistribution[4]}%, Boots: ${gearTypeDistribution[5]}%</td>
                         </tr>
                         <tr>
-                            <td>Cantidad de Speed Substats con Rolls ≥ 4 (SpeedSet vs No SpeedSet)</td>
+                            <td>Number of Speed Substats with Rolls ≥ 4 (SpeedSet vs No SpeedSet)</td>
                             <td>SpeedSet: ${speedRollsGreaterThan4SpeedSet}, No SpeedSet: ${speedRollsGreaterThan4NonSpeedSet}</td>
                         </tr>
                         <tr>
-                            <td>Cantidad de Speed Substats con Rolls ≥ 4 y Valor > 20</td>
+                            <td>Number of Speed Substats with Rolls ≥ 4 and Value > 20</td>
                             <td>${speedRollsGreaterThan4Above20}</td>
                         </tr>
                     `;
