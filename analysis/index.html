@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -45,8 +6,9 @@
     <title>Gear Analysis with KPIs</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Highcharts -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -56,10 +18,14 @@
         .container {
             max-width: 1200px;
         }
-        canvas {
-            max-width: 500px;
-            width: 100%;
-            margin: 20px auto;
+        .chart-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            width: 32%;
+            min-height: 400px;
         }
         .table-responsive {
             margin-top: 20px;
@@ -81,8 +47,14 @@
             color: #ffffff;
             border-color: #444;
         }
-        .dark-theme canvas {
-            background-color: #2d2d2d;
+        .dark-theme .highcharts-container {
+            background-color: #2d2d2d !important;
+        }
+        .dark-theme .highcharts-title, .dark-theme .highcharts-subtitle, .dark-theme .highcharts-legend-item text {
+            fill: #ffffff !important;
+        }
+        .dark-theme .highcharts-axis-labels text {
+            fill: #ffffff !important;
         }
     </style>
 </head>
@@ -98,17 +70,12 @@
             <button id="themeToggle" class="btn btn-secondary">Toggle Dark/Light Theme</button>
         </div>
 
-        <!-- Bar Chart for Set Counts -->
-        <h3 class="text-center">Gear Pieces by Set (Absolute Count)</h3>
-        <canvas id="setBarChart"></canvas>
-
-        <!-- Polar Chart for Set Percentages -->
-        <h3 class="text-center">Gear Pieces by Set (% of Total)</h3>
-        <canvas id="setPolarChart"></canvas>
-
-        <!-- Polar Chart for Gear Type Distribution -->
-        <h3 class="text-center">Gear Pieces by Type (% of Total)</h3>
-        <canvas id="gearTypePolarChart"></canvas>
+        <!-- Charts Row -->
+        <div class="chart-row">
+            <div class="chart-container" id="setBarChart"></div>
+            <div class="chart-container" id="setPolarChart"></div>
+            <div class="chart-container" id="gearTypePolarChart"></div>
+        </div>
 
         <!-- Table for Set Counts and Gear Types -->
         <div id="setCounts" class="mt-4 table-responsive">
@@ -150,9 +117,6 @@
         const totalGearSpan = document.getElementById('totalGear');
         const setTableBody = document.getElementById('setTableBody');
         const kpiTableBody = document.getElementById('kpiTableBody');
-        let setBarChartInstance = null;
-        let setPolarChartInstance = null;
-        let gearTypePolarChartInstance = null;
 
         // Theme Switch
         const themeToggle = document.getElementById('themeToggle');
@@ -160,7 +124,148 @@
             document.body.classList.toggle('dark-theme');
             const isDark = document.body.classList.contains('dark-theme');
             themeToggle.textContent = isDark ? 'Switch to Light Theme' : 'Toggle Dark/Light Theme';
+            // Update charts for theme change
+            if (window.setBarChart) window.setBarChart.destroy();
+            if (window.setPolarChart) window.setPolarChart.destroy();
+            if (window.gearTypePolarChart) window.gearTypePolarChart.destroy();
+            renderCharts(setLabels, setCountsData, setPercentages, gearTypeCounts, gearTypePercentages);
         });
+
+        let setLabels = [];
+        let setCountsData = [];
+        let setPercentages = [];
+        let gearTypeCounts = [];
+        let gearTypePercentages = [];
+
+        function renderCharts(setLabels, setCountsData, setPercentages, gearTypeCounts, gearTypePercentages) {
+            const isDark = document.body.classList.contains('dark-theme');
+            const textColor = isDark ? '#ffffff' : '#000000';
+            const backgroundColor = isDark ? '#2d2d2d' : '#ffffff';
+
+            // Bar Chart for Set Counts
+            window.setBarChart = Highcharts.chart('setBarChart', {
+                chart: {
+                    type: 'column',
+                    backgroundColor: backgroundColor
+                },
+                title: {
+                    text: 'Gear Pieces by Set (Absolute Count)',
+                    style: { color: textColor }
+                },
+                xAxis: {
+                    categories: setLabels,
+                    title: { text: 'Gear Set', style: { color: textColor } },
+                    labels: { style: { color: textColor } }
+                },
+                yAxis: {
+                    min: 0,
+                    title: { text: 'Number of Pieces', style: { color: textColor } },
+                    labels: { style: { color: textColor } },
+                    tickInterval: 1
+                },
+                series: [{
+                    name: 'Number of Gear Pieces',
+                    data: setCountsData.map((count, i) => ({
+                        y: count,
+                        color: `hsl(${i * 360 / setLabels.length}, 70%, 50%)`
+                    }))
+                }],
+                legend: { enabled: false },
+                credits: { enabled: false }
+            });
+
+            // Polar Chart for Set Percentages
+            window.setPolarChart = Highcharts.chart('setPolarChart', {
+                chart: {
+                    polar: true,
+                    type: 'area',
+                    backgroundColor: backgroundColor
+                },
+                title: {
+                    text: 'Gear Pieces by Set (% of Total)',
+                    style: { color: textColor }
+                },
+                pane: {
+                    startAngle: 0,
+                    endAngle: 360
+                },
+                xAxis: {
+                    categories: setLabels,
+                    tickmarkPlacement: 'on',
+                    lineWidth: 0,
+                    labels: { style: { color: textColor } }
+                },
+                yAxis: {
+                    gridLineInterpolation: 'polygon',
+                    lineWidth: 0,
+                    min: 0,
+                    max: Math.max(...setPercentages),
+                    labels: {
+                        format: '{value}%',
+                        style: { color: textColor }
+                    }
+                },
+                series: [{
+                    name: 'Percentage of Total Gear Pieces',
+                    data: setPercentages.map((percent, i) => ({
+                        y: parseFloat(percent),
+                        color: `hsl(${i * 360 / setLabels.length}, 70%, 50%)`
+                    })),
+                    pointPlacement: 'on'
+                }],
+                legend: { enabled: true, labelFormatter: function() { return this.name + ': ' + this.y + '%'; }, itemStyle: { color: textColor } },
+                credits: { enabled: false },
+                tooltip: {
+                    pointFormat: '{series.name}: {point.y}%'
+                }
+            });
+
+            // Polar Chart for Gear Type Distribution
+            window.gearTypePolarChart = Highcharts.chart('gearTypePolarChart', {
+                chart: {
+                    polar: true,
+                    type: 'area',
+                    backgroundColor: backgroundColor
+                },
+                title: {
+                    text: 'Gear Pieces by Type (% of Total)',
+                    style: { color: textColor }
+                },
+                pane: {
+                    startAngle: 0,
+                    endAngle: 360
+                },
+                xAxis: {
+                    categories: ['Weapon', 'Helmet', 'Armor', 'Necklace', 'Ring', 'Boots'],
+                    tickmarkPlacement: 'on',
+                    lineWidth: 0,
+                    labels: { style: { color: textColor } }
+                },
+                yAxis: {
+                    gridLineInterpolation: 'polygon',
+                    lineWidth: 0,
+                    min: 0,
+                    max: Math.max(...gearTypePercentages),
+                    labels: {
+                        format: '{value}%',
+                        style: { color: textColor }
+                    }
+                },
+                series: [{
+                    name: 'Percentage of Total Gear Pieces by Type',
+                    data: gearTypePercentages.map((percent, i) => ({
+                        y: parseFloat(percent),
+                        color: `hsl(${i * 360 / 6}, 70%, 50%)`
+                    })),
+                    pointPlacement: 'on'
+                }],
+                legend: { enabled: true, labelFormatter: function() { return this.name + ': ' + this.y + '%'; }, itemStyle: { color: textColor } },
+                credits: { enabled: false },
+                tooltip: {
+                    pointFormat: '{series.name}: {point.y}%'
+                }
+            });
+        }
 
         input.addEventListener('change', (event) => {
             const file = event.target.files[0];
@@ -249,155 +354,18 @@
                         setTableBody.appendChild(row);
                     }
 
-                    // Prepare data for the bar chart (Set Counts)
-                    const setLabels = Object.keys(setCounts).sort();
-                    const setCountsData = setLabels.map(label => setCounts[label]);
-                    const setColors = setLabels.map((_, i) => `hsl(${i * 360 / setLabels.length}, 70%, 50%)`);
+                    // Prepare data for charts
+                    setLabels = Object.keys(setCounts).sort();
+                    setCountsData = setLabels.map(label => setCounts[label]);
+                    setPercentages = setLabels.map(label => ((setCounts[label] / totalGear) * 100).toFixed(2));
 
-                    // Destroy the bar chart if it exists
-                    if (setBarChartInstance) {
-                        setBarChartInstance.destroy();
-                    }
-
-                    // Create the bar chart
-                    const setBarCtx = document.getElementById('setBarChart').getContext('2d');
-                    setBarChartInstance = new Chart(setBarCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: setLabels,
-                            datasets: [{
-                                label: 'Number of Gear Pieces',
-                                data: setCountsData,
-                                backgroundColor: setColors,
-                                borderColor: setColors,
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    title: {
-                                        display: true,
-                                        text: 'Number of Pieces'
-                                    },
-                                    ticks: {
-                                        stepSize: 1
-                                    }
-                                },
-                                x: {
-                                    title: {
-                                        display: true,
-                                        text: 'Gear Set'
-                                    }
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    display: false
-                                }
-                            }
-                        }
-                    });
-
-                    // Prepare data for the set polar chart (% of Total)
-                    const setPercentages = setLabels.map(label => ((setCounts[label] / totalGear) * 100).toFixed(2));
-                    const maxPercentage = Math.max(...setPercentages);
-                    const setColorsPolar = setLabels.map((_, i) => `hsl(${i * 360 / setLabels.length}, 70%, 50%)`);
-
-                    // Destroy the set polar chart if it exists
-                    if (setPolarChartInstance) {
-                        setPolarChartInstance.destroy();
-                    }
-
-                    // Create the set polar chart
-                    const setPolarCtx = document.getElementById('setPolarChart').getContext('2d');
-                    setPolarChartInstance = new Chart(setPolarCtx, {
-                        type: 'polarArea',
-                        data: {
-                            labels: setLabels,
-                            datasets: [{
-                                label: 'Percentage of Total Gear Pieces',
-                                data: setPercentages,
-                                backgroundColor: setColorsPolar,
-                                borderColor: setColorsPolar,
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                r: {
-                                    beginAtZero: true,
-                                    max: maxPercentage,
-                                    ticks: {
-                                        stepSize: Math.ceil(maxPercentage / 10),
-                                        callback: value => `${value}%`
-                                    }
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    position: 'top'
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: context => `${context.label}: ${context.raw}%`
-                                    }
-                                }
-                            }
-                        }
-                    });
-
-                    // Prepare data for the gear type polar chart (% of Total)
-                    const gearTypeCounts = gearTypes.map(type => {
+                    gearTypeCounts = gearTypes.map(type => {
                         return items.filter(item => item.gear === type).length;
                     });
-                    const gearTypePercentages = gearTypeCounts.map(count => ((count / totalGear) * 100).toFixed(2));
-                    const maxGearTypePercentage = Math.max(...gearTypePercentages);
-                    const gearTypeColors = gearTypes.map((_, i) => `hsl(${i * 360 / gearTypes.length}, 70%, 50%)`);
+                    gearTypePercentages = gearTypeCounts.map(count => ((count / totalGear) * 100).toFixed(2));
 
-                    // Destroy the gear type polar chart if it exists
-                    if (gearTypePolarChartInstance) {
-                        gearTypePolarChartInstance.destroy();
-                    }
-
-                    // Create the gear type polar chart
-                    const gearTypePolarCtx = document.getElementById('gearTypePolarChart').getContext('2d');
-                    gearTypePolarChartInstance = new Chart(gearTypePolarCtx, {
-                        type: 'polarArea',
-                        data: {
-                            labels: gearTypes,
-                            datasets: [{
-                                label: 'Percentage of Total Gear Pieces by Type',
-                                data: gearTypePercentages,
-                                backgroundColor: gearTypeColors,
-                                borderColor: gearTypeColors,
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                r: {
-                                    beginAtZero: true,
-                                    max: maxGearTypePercentage,
-                                    ticks: {
-                                        stepSize: Math.ceil(maxGearTypePercentage / 10),
-                                        callback: value => `${value}%`
-                                    }
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    position: 'top'
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: context => `${context.label}: ${context.raw}%`
-                                    }
-                                }
-                            }
-                        }
-                    });
+                    // Render charts
+                    renderCharts(setLabels, setCountsData, setPercentages, gearTypeCounts, gearTypePercentages);
 
                     // Calculate KPIs
                     const speedSetItems = items.filter(item => item.set === 'SpeedSet');
