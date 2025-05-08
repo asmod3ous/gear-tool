@@ -42,7 +42,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gear Analysis with KPIs</title>
+    <title>Gear Analysis</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Chart.js -->
@@ -53,7 +53,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
         }
         canvas {
             max-width: 500px;
@@ -63,14 +63,11 @@
         .table-responsive {
             margin-top: 20px;
         }
-        .kpi-table {
-            margin-top: 40px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 class="text-center">Gear Analysis with KPIs</h2>
+        <h2 class="text-center">Gear Analysis</h2>
         <div class="mb-3">
             <input type="file" id="jsonInput" accept=".txt" class="form-control">
         </div>
@@ -102,27 +99,12 @@
                 <tbody id="setTableBody"></tbody>
             </table>
         </div>
-
-        <!-- Tabla para KPIs -->
-        <div id="kpiTable" class="kpi-table table-responsive">
-            <h3>KPI Overview</h3>
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th scope="col">KPI</th>
-                        <th scope="col">Value</th>
-                    </tr>
-                </thead>
-                <tbody id="kpiTableBody"></tbody>
-            </table>
-        </div>
     </div>
 
     <script>
         const input = document.getElementById('jsonInput');
         const totalGearSpan = document.getElementById('totalGear');
         const setTableBody = document.getElementById('setTableBody');
-        const kpiTableBody = document.getElementById('kpiTableBody');
         let setBarChartInstance = null;
         let setPolarChartInstance = null;
 
@@ -139,29 +121,6 @@
                     const gearTypes = ['Weapon', 'Helmet', 'Armor', 'Necklace', 'Ring', 'Boots'];
                     const setGearBreakdown = {};
                     const processedGearIds = new Set();
-
-                    // Determinar si la pieza tiene Speed substat y contar rolls >= 4 para Speed
-                    let speedRollsGreaterThan4SpeedSet = 0;
-                    let speedRollsGreaterThan4NonSpeedSet = 0;
-                    let speedRollsGreaterThan4Above20 = 0;
-                    items.forEach(gear => {
-                        gear.hasSpeedSubstat = false;
-                        if (gear.substats && Array.isArray(gear.substats)) {
-                            gear.hasSpeedSubstat = gear.substats.some(substat => substat.type === 'Speed');
-                            gear.substats.forEach(substat => {
-                                if (substat.type === 'Speed' && substat.rolls >= 4) {
-                                    if (gear.set === 'SpeedSet') {
-                                        speedRollsGreaterThan4SpeedSet++;
-                                    } else {
-                                        speedRollsGreaterThan4NonSpeedSet++;
-                                    }
-                                }
-                                if (substat.type === 'Speed' && substat.rolls >= 4 && substat.value > 20) {
-                                    speedRollsGreaterThan4Above20++;
-                                }
-                            });
-                        }
-                    });
 
                     // Inicializar setGearBreakdown para cada set
                     items.forEach(gear => {
@@ -183,7 +142,9 @@
                             const gearType = gear.gear;
                             const gearId = gear.id;
                             if (!processedGearIds.has(gearId)) {
+                                // Contar por set
                                 setCounts[set] = (setCounts[set] || 0) + 1;
+                                // Contar por tipo de gear dentro del set
                                 if (gearTypes.includes(gearType)) {
                                     setGearBreakdown[set][gearType]++;
                                 }
@@ -311,47 +272,6 @@
                             }
                         }
                     });
-
-                    // Calcular KPIs
-                    const speedSetItems = items.filter(item => item.set === 'SpeedSet');
-                    const speedSetWithSpeedSubstat = speedSetItems.filter(item => item.hasSpeedSubstat).length;
-                    const speedSetTotal = speedSetItems.length;
-                    const speedSetWithSpeedSubstatPercent = speedSetTotal > 0 ? ((speedSetWithSpeedSubstat / speedSetTotal) * 100).toFixed(2) : 0;
-
-                    const nonSpeedSetItems = items.filter(item => item.set !== 'SpeedSet');
-                    const nonSpeedSetWithSpeedSubstat = nonSpeedSetItems.filter(item => item.hasSpeedSubstat).length;
-                    const nonSpeedSetTotal = nonSpeedSetItems.length;
-                    const nonSpeedSetSpeedSubstatPercent = nonSpeedSetTotal > 0 ? ((nonSpeedSetWithSpeedSubstat / nonSpeedSetTotal) * 100).toFixed(2) : 0;
-
-                    const gearTypeCounts = gearTypes.map(type => {
-                        return items.filter(item => item.gear === type).length;
-                    });
-                    const gearTypeDistribution = gearTypeCounts.map(count => ((count / totalGear) * 100).toFixed(2));
-
-                    // Generar tabla de KPIs
-                    kpiTableBody.innerHTML = `
-                        <tr>
-                            <td>Cantidad de Piezas de SpeedSet con Speed Substat (% y Cantidad vs Total)</td>
-                            <td>${speedSetWithSpeedSubstatPercent}% (${speedSetWithSpeedSubstat}/${speedSetTotal})</td>
-                        </tr>
-                        <tr>
-                            <td>Cantidad de Piezas con Cualquier Set (Excepto SpeedSet) con Speed Substat vs Total de Set</td>
-                            <td>${nonSpeedSetSpeedSubstatPercent}% (${nonSpeedSetWithSpeedSubstat}/${nonSpeedSetTotal})</td>
-                        </tr>
-                        <tr>
-                            <td>Relación de Piezas en Distribución entre los 6 Tipos Principales</td>
-                            <td>Weapon: ${gearTypeDistribution[0]}%, Helmet: ${gearTypeDistribution[1]}%, Armor: ${gearTypeDistribution[2]}%, Necklace: ${gearTypeDistribution[3]}%, Ring: ${gearTypeDistribution[4]}%, Boots: ${gearTypeDistribution[5]}%</td>
-                        </tr>
-                        <tr>
-                            <td>Cantidad de Speed Substats con Rolls ≥ 4 (SpeedSet vs No SpeedSet)</td>
-                            <td>SpeedSet: ${speedRollsGreaterThan4SpeedSet}, No SpeedSet: ${speedRollsGreaterThan4NonSpeedSet}</td>
-                        </tr>
-                        <tr>
-                            <td>Cantidad de Speed Substats con Rolls ≥ 4 y Valor > 20</td>
-                            <td>${speedRollsGreaterThan4Above20}</td>
-                        </tr>
-                    `;
-
                 } catch (error) {
                     alert('Error parsing file: ' + error.message);
                 }
