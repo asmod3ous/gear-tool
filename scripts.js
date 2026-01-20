@@ -383,10 +383,11 @@ document.getElementById('import').onclick = function () {
     toCompareData["Kundalt"] = [86, 88, 99, 82, 94.2]
     toCompareData["Bloodance"] = [89, 92, 97, 76, 93.9]
     toCompareData["Monochico1"] = [77, 86, 88, 65, 85.35]
-    toCompareData["Asmod3ous"] = [100, 92, 100, 89, 93.25]
+    toCompareData["Asmod3ous"] = [109, 94, 112, 102, 100.95]
     toCompareData["Waffle"] = [104, 95, 112, 104, 101.1]
     toCompareData["Lusira"] = [121, 102, 116, 115, 116.55]
     toCompareData["Anl"] = [102, 100, 91, 83, 92.45]
+    toCompareData["Zenitt"] = [98, 94, 120, 120, 103.8]
     toCompareData["Jenazad"] = [101, 93, 103, 91, 95.7]
     toCompareData["dZanderr"] = [103, 100, 113, 110, 109.1]
     toCompareData["Exefalse"] = [77, 90, 90, 87, 89.25]
@@ -397,6 +398,7 @@ document.getElementById('import').onclick = function () {
     toCompareData["WiseGuy"] = [105, 97, 112, 118, 104.65]
     toCompareData["Loptr"] = [91, 91, 108, 100, 97.05]
     toCompareData["Gavovgb"] = [77, 73, 77, 61, 75.95]
+    
 
     labelCompare = toCompare
     dataCompare = toCompareData[toCompare]
