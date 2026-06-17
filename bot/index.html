@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E7 CP Standard v4.0</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0c10;color:#e8eaf0;font-family:system-ui,sans-serif;min-height:100vh;background-image:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(79,195,247,.07) 0%,transparent 70%)}
+.header{padding:28px 32px 0;display:flex;align-items:baseline;gap:12px}
+.header h1{font-family:monospace;font-size:19px;font-weight:800;letter-spacing:.1em;color:#4fc3f7;text-shadow:0 0 24px rgba(79,195,247,.4)}
+.ver{font-size:11px;color:#6b7280;border:1px solid #252a35;padding:2px 8px;border-radius:3px;font-family:monospace}
+.main{display:grid;grid-template-columns:350px 1fr;gap:18px;padding:18px 32px 36px;max-width:1280px}
+.panel{background:#111318;border:1px solid #252a35;border-radius:8px;overflow:hidden}
+.ph{padding:11px 16px;font-family:monospace;font-size:10px;letter-spacing:.1em;color:#6b7280;border-bottom:1px solid #252a35;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+.ph::before{content:'';width:5px;height:5px;border-radius:50%;background:#4fc3f7;box-shadow:0 0 7px #4fc3f7;flex-shrink:0}
+.dz{margin:16px;border:1.5px dashed #252a35;border-radius:6px;padding:32px 14px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.dz:hover,.dz.drag{border-color:#4fc3f7;background:rgba(79,195,247,.04)}
+.dz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.dz-ico{font-size:28px;opacity:.4;margin-bottom:8px}
+.dz-l{font-size:13px;color:#6b7280}.dz-l strong{color:#4fc3f7}
+.dz-h{font-size:11px;color:#4a5160;margin-top:4px;font-family:monospace}
+.fst{margin:0 16px 14px;padding:9px 12px;background:#181c24;border-radius:6px;font-family:monospace;font-size:11px;display:none;align-items:center;gap:7px}
+.fst.show{display:flex}
+.fdot{width:7px;height:7px;border-radius:50%;background:#4fd48a;box-shadow:0 0 7px #4fd48a;flex-shrink:0}
+.sg{display:none;grid-template-columns:1fr 1fr;gap:1px;background:#252a35;border-top:1px solid #252a35}
+.sc{background:#111318;padding:12px 14px;text-align:center}
+.sv{font-family:monospace;font-size:16px;font-weight:700}
+.sl{font-size:10px;color:#6b7280;margin-top:2px}
+.spdt{padding:13px 16px 15px;border-top:1px solid #252a35;display:none}
+.spdtit{font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.spdrow{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:12px}
+.spdrow:last-child{border:none}
+.spdt-l{color:#6b7280;font-family:monospace;font-size:11px}
+.spdc{display:flex;gap:5px}
+.spds{color:#4fc3f7;font-weight:500;font-family:monospace}
+.spda{color:#4a5160;font-family:monospace}
+.err{display:none;margin:0 16px 14px;padding:9px 13px;background:rgba(224,86,86,.1);border:1px solid rgba(224,86,86,.3);border-radius:6px;color:#e05656;font-size:12px}
+.err.show{display:block}
+.proc{display:none;align-items:center;gap:9px;padding:14px 16px;color:#6b7280;font-family:monospace;font-size:11px}
+.proc.show{display:flex}
+.spin{width:16px;height:16px;border:2px solid #252a35;border-top-color:#4fc3f7;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rp{display:flex;flex-direction:column;gap:16px}
+.hbox{background:#111318;border:1px solid #252a35;border-radius:8px;padding:22px 26px;display:none;align-items:center;gap:24px;flex-wrap:wrap}
+.bignum{font-family:monospace;font-size:56px;font-weight:800;color:#f5c542;text-shadow:0 0 36px rgba(245,197,66,.4);line-height:1}
+.blbl{font-size:10px;color:#6b7280;font-family:monospace;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.bsub{font-size:11px;color:#6b7280;margin-top:5px}
+.bsub span{color:#4fc3f7}
+.ep{display:flex;flex-direction:column;align-items:center;justify-content:center;height:260px;color:#4a5160;gap:9px}
+.ep-ico{font-size:36px;opacity:.3}
+.ep-txt{font-family:monospace;font-size:11px;letter-spacing:.08em}
+.rb{background:#111318;border:1px solid #252a35;border-radius:8px;padding:18px;display:none}
+.ri{display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.leg{display:flex;flex-direction:column;gap:9px;min-width:140px}
+.li{display:flex;align-items:center;gap:7px;font-size:12px}
+.ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.lname{color:#e8eaf0;min-width:62px}
+.lval{font-family:monospace;font-size:12px;font-weight:700;margin-left:auto}
+.bkg{display:none;grid-template-columns:repeat(3,1fr);gap:1px;background:#252a35}
+.bkc{background:#111318;padding:15px 17px;position:relative;overflow:hidden}
+.bkc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:.8}
+.bkc.dps::before{background:#e05656}.bkc.spd::before{background:#4fc3f7}.bkc.top::before{background:#f7a94f}
+.bkc.bru::before{background:#c084fc}.bkc.eff::before{background:#4fd48a}.bkc.tnk::before{background:#60a5fa}
+.bkn{font-family:monospace;font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.bkv{font-family:monospace;font-size:21px;font-weight:700}
+.bkc.dps .bkv{color:#e05656}.bkc.spd .bkv{color:#4fc3f7}.bkc.top .bkv{color:#f7a94f}
+.bkc.bru .bkv{color:#c084fc}.bkc.eff .bkv{color:#4fd48a}.bkc.tnk .bkv{color:#60a5fa}
+.bks{font-size:10px;color:#6b7280;margin-top:3px}
+.bdp{display:none;padding:14px 16px 16px}
+.bdgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.bdcol-title{font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.bdrow{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12px}
+.bdname{min-width:78px;color:#e8eaf0;flex-shrink:0}
+.bdbar{flex:1;height:7px;background:#1a1e26;border-radius:4px;overflow:hidden}
+.bdfill{height:100%;border-radius:4px}
+.bdpts{min-width:48px;text-align:right;font-family:monospace;font-weight:700;flex-shrink:0}
+.bdpct{min-width:38px;text-align:right;color:#6b7280;font-family:monospace;font-size:11px;flex-shrink:0}
+@media(max-width:820px){.main{grid-template-columns:1fr;padding:10px}.bkg{grid-template-columns:repeat(2,1fr)}.bignum{font-size:42px}.bdgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>E7 · CP STANDARD</h1>
+  <span class="ver">v4.0 · 百里战力</span>
+</div>
+<div class="main">
+  <div>
+    <div class="panel" style="margin-bottom:12px">
+      <div class="ph">Gear Data</div>
+      <div class="dz" id="dz">
+        <input type="file" id="fi" accept=".txt,.json">
+        <div class="dz-ico">⚔</div>
+        <div class="dz-l">Drop <strong>gear.txt</strong> here</div>
+        <div class="dz-l" style="margin-top:2px">or <strong>click to browse</strong></div>
+        <div class="dz-h">exported from e7 companion / optimizer</div>
+      </div>
+      <div class="fst" id="fst"><div class="fdot"></div><span id="fn">—</span></div>
+      <div class="err" id="err"></div>
+      <div class="proc" id="proc"><div class="spin"></div>Processing…</div>
+      <div class="sg" id="sg">
+        <div class="sc"><div class="sv" id="sTot">—</div><div class="sl">Total Lv88/90</div></div>
+        <div class="sc"><div class="sv" id="sHero">—</div><div class="sl">Heroes</div></div>
+        <div class="sc"><div class="sv" id="sG75">—</div><div class="sl">GS 75+</div></div>
+        <div class="sc"><div class="sv" id="sG70">—</div><div class="sl">GS 70+</div></div>
+        <div class="sc"><div class="sv" id="sR75">—</div><div class="sl">Reforge 75+</div></div>
+        <div class="sc"><div class="sv" id="sR70">—</div><div class="sl">Reforge 70+</div></div>
+      </div>
+      <div class="spdt" id="spdt">
+        <div class="spdtit">Speed (SpeedSet / All)</div>
+        <div class="spdrow"><span class="spdt-l">25+</span><div class="spdc"><span class="spds" id="s25s">—</span><span class="spda">/</span><span class="spda" id="s25a">—</span></div></div>
+        <div class="spdrow"><span class="spdt-l">22+</span><div class="spdc"><span class="spds" id="s22s">—</span><span class="spda">/</span><span class="spda" id="s22a">—</span></div></div>
+        <div class="spdrow"><span class="spdt-l">20+</span><div class="spdc"><span class="spds" id="s20s">—</span><span class="spda">/</span><span class="spda" id="s20a">—</span></div></div>
+        <div class="spdrow"><span class="spdt-l">18+</span><div class="spdc"><span class="spds" id="s18s">—</span><span class="spda">/</span><span class="spda" id="s18a">—</span></div></div>
+        <div class="spdrow"><span class="spdt-l">15+</span><div class="spdc"><span class="spds" id="s15s">—</span><span class="spda">/</span><span class="spda" id="s15a">—</span></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="rp">
+    <div class="hbox panel" id="hbox">
+      <div>
+        <div class="blbl">Total CP Score</div>
+        <div class="bignum" id="tcp">—</div>
+        <div class="bsub">Updated <span id="utime">—</span></div>
+      </div>
+      <div style="flex:1">
+        <div class="blbl">Heroes</div>
+        <div style="font-size:24px;font-weight:600" id="hcnt">—</div>
+      </div>
+    </div>
+    <div class="panel" id="ep"><div class="ep"><div class="ep-ico">◈</div><div class="ep-txt">Upload gear.txt to calculate CP</div></div></div>
+    <div class="rb panel" id="rb">
+      <div class="ph" style="border:none;padding:0">Inventory Profile</div>
+      <div class="ri">
+        <canvas id="radar" width="320" height="320"></canvas>
+        <div class="leg" id="leg"></div>
+      </div>
+    </div>
+    <div class="panel" id="bkp" style="overflow:hidden;display:none">
+      <div class="ph">Category Breakdown</div>
+      <div class="bkg" id="bkg">
+        <div class="bkc dps"><div class="bkn">DPS</div><div class="bkv" id="bD">—</div><div class="bks" id="bDs">—</div></div>
+        <div class="bkc spd"><div class="bkn">Speed</div><div class="bkv" id="bS">—</div><div class="bks" id="bSs">—</div></div>
+        <div class="bkc top"><div class="bkn">TopSpeed</div><div class="bkv" id="bT">—</div><div class="bks" id="bTs">—</div></div>
+        <div class="bkc bru"><div class="bkn">Bruiser</div><div class="bkv" id="bB">—</div><div class="bks" id="bBs">—</div></div>
+        <div class="bkc eff"><div class="bkn">Eff / Er</div><div class="bkv" id="bE">—</div><div class="bks" id="bEs">—</div></div>
+        <div class="bkc tnk"><div class="bkn">Tank</div><div class="bkv" id="bTn">—</div><div class="bks" id="bTns">—</div></div>
+      </div>
+      <div class="bdp" id="bdp">
+        <div class="bdgrid">
+          <div>
+            <div class="bdcol-title">By Gear Set</div>
+            <div id="bdSet"></div>
+          </div>
+          <div>
+            <div class="bdcol-title">By Slot</div>
+            <div id="bdSlot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// ── Weights & maps ──────────────────────────────────────────────────
+const W={Speed:2,HealthPercent:1,AttackPercent:1,DefensePercent:1.5,CriticalHitChancePercent:1.5,CriticalHitDamagePercent:1.25,EffectivenessPercent:1,EffectResistancePercent:1,Health:1/30,Attack:1/15,Defense:1/3};
+const TM={Speed:'speed',HealthPercent:'hp_pct',AttackPercent:'atk_pct',DefensePercent:'def_pct',CriticalHitChancePercent:'crit',CriticalHitDamagePercent:'cdmg',EffectivenessPercent:'eff',EffectResistancePercent:'res',Health:'hp',Attack:'atk',Defense:'def'};
+const SM={SpeedSet:'Speed',CriticalSet:'Critical',DestructionSet:'Destruction',PenetrationSet:'Penetration',HealthSet:'Health',HitSet:'Hit',ImmunitySet:'Immunity',CounterSet:'Counter',LifestealSet:'Lifesteal',ProtectionSet:'Protection',DefenseSet:'Defense',ResistSet:'Resist',TorrentSet:'Torrent',RageSet:'Rage',RevenantSet:'Revenant',InjurySet:'Injury',RiposteSet:'Riposte'};
+const SLOTM={Weapon:'weapon',Armor:'armor',Helmet:'helm',Ring:'ring',Necklace:'neck',Boots:'boot'};
+const MAINM={AttackPercent:'atk_pct',HealthPercent:'hp_pct',DefensePercent:'def_pct',CriticalHitChancePercent:'crit',CriticalHitDamagePercent:'cdmg',EffectResistancePercent:'res',EffectivenessPercent:'eff',Speed:'speed',Attack:'atk',Health:'hp',Defense:'def'};
+
+// ── Set groups ──────────────────────────────────────────────────────
+const DPS_S  =new Set(['Speed','Destruction','Critical','Penetration','Torrent','Counter','Lifesteal','Immunity','Riposte','Rage']);
+const BRU_S  =new Set(['Speed','Health','Defense','Critical','Destruction','Counter','Injury','Lifesteal','Immunity','Penetration','Riposte','Rage']);
+const EFF_S  =new Set(['Speed','Health','Defense','Hit','Resist','Counter','Immunity']);
+// Tank = BruiserHp formula (Speed/Health/Defense/Destruction/Counter/Injury/Immunity/Penetration sets, crit/cdmg/hp%/def%/def/speed substats)
+const TNK_S  =new Set(['Speed','Health','Defense','Resist','Protection','Counter','Immunity','Revenant','Hit']);
+
+// ── Normalize one piece ─────────────────────────────────────────────
+function norm(g){
+  const subs={};
+  for(const s of(g.substats||[])){const t=TM[s.type];if(t)subs[t]=s.value;}
+  const gs=(g.substats||[]).reduce((a,s)=>a+(W[s.type]||0)*s.value,0);
+  return{slot:SLOTM[g.gear]||'',set:SM[g.set]||'',main:MAINM[g.mainStatType]||null,subs,gs,speed:subs.speed||0};
+}
+const av=(p,a)=>Object.keys(p.subs).every(k=>a.has(k));
+
+// ── Score one piece ─────────────────────────────────────────────────
+function score(p){
+  const{gs,slot:sl,main:m,subs,speed,set}=p, r={};
+
+  // TopSpeed — speed-based, not GS
+  if(sl!=='boot'&&speed>=22)
+    r.TopSpeed=speed>=27?20*(speed-24.5):speed>=25?10*(speed-22.5):5*(speed-21);
+
+  // Spd — SpeedSet only, speed>=18, halved coefficients
+  if(set==='Speed'&&speed>=18){
+    const c=gs>=78?2*(gs-72.25):gs>=73?(gs-66.5):gs>=65?0.75*(gs-64.34):0;
+    if(c>0)r.Spd=c;
+  }
+
+  // DPS
+  if(DPS_S.has(set)&&av(p,new Set(['speed','atk_pct','atk','crit','cdmg']))){
+    let c=0;
+    if(sl==='weapon'||sl==='helm')        c=gs>=79?3*gs-220:gs>=75?2*(gs-70.5):gs>=69?(4/3)*(gs-68.25):0;
+    else if(sl==='armor')                 c=gs>=73?3*gs-200:gs>=69?2*(gs-64):gs>=63?(4/3)*(gs-61.5):0;
+    else if(sl==='neck'&&(m==='crit'||m==='cdmg')) c=gs>=73?4*gs-272.3:gs>=68?(7/3)*(gs-64.5):gs>=65?(4/3)*(gs-62):0;
+    else if(sl==='ring'&&m==='atk_pct')   c=gs>=73?4*gs-272.3:gs>=68?(7/3)*(gs-64.5):gs>=65?(4/3)*(gs-62):0;
+    else if(sl==='boot'&&(m==='speed'||m==='atk_pct')) c=gs>=73?4*gs-272.3:gs>=68?(7/3)*(gs-64.5):gs>=63?gs-62:0;
+    if(c>0)r.DPS=c;
+  }
+
+  // Tank — all tank sets, hp/def substats only, weapon uses same tier as helm/armor
+  if(TNK_S.has(set)&&av(p,new Set(['speed','hp_pct','hp','def_pct','def']))){
+    let c=0;
+    if(sl==='weapon'||sl==='helm'||sl==='armor') c=gs>=79?3*gs-220:gs>=75?2*(gs-70.5):gs>=69?(4/3)*(gs-68.25):0;
+    else if(sl==='neck'&&(m==='hp_pct'||m==='def_pct')) c=gs>=73?4*gs-272.3:gs>=68?(7/3)*(gs-64.5):gs>=63?(4/3)*(gs-62):0;
+    else if(sl==='ring'&&(m==='hp_pct'||m==='def_pct'))  c=gs>=73?4*gs-272.3:gs>=68?(7/3)*(gs-64.5):gs>=63?(4/3)*(gs-62):0;
+    else if(sl==='boot'&&(m==='speed'||m==='hp_pct'||m==='def_pct')) c=gs>=73?4*gs-272.3:gs>=68?(7/3)*(gs-64.5):gs>=63?gs-62:0;
+    if(c>0)r.Tank=c;
+  }
+
+  // Eff/Er — T=84, factor 1.8
+  if(EFF_S.has(set)&&av(p,new Set(['speed','hp_pct','def_pct','def','res','eff','atk_pct']))){
+    const he='eff'in subs||m==='eff'||set==='Hit';
+    const hr='res'in subs||m==='res'||set==='Resist';
+    const ha='atk_pct'in subs||m==='atk_pct';
+    if((he||hr)&&!(ha&&(he||hr))){
+      const vm=['hp_pct','def_pct','atk_pct',null].includes(m)||(sl==='ring'&&(m==='res'||m==='eff'))||(sl==='boot'&&m==='speed');
+      if(vm&&gs>=84)r['Eff/Er']=1.8*(gs-84);
+    }
+  }
+
+  // Bruiser — T=84
+  if(BRU_S.has(set)&&av(p,new Set(['speed','atk_pct','crit','cdmg','hp_pct','def_pct','def']))){
+    const vm=['weapon','helm','armor'].includes(sl)||(sl==='neck'&&['crit','cdmg','hp_pct','atk_pct'].includes(m))||(sl==='ring'&&['hp_pct','def_pct','atk_pct'].includes(m))||(sl==='boot'&&m==='speed');
+    if(vm&&gs>=84)r.Bruiser=2*(gs-84);
+  }
+
+  return r;
+}
+
+// ── Main calculate ──────────────────────────────────────────────────
+function calculate(data){
+  const gear=data.items||[], heroes=data.heroes||[];
+  const sc=gear.filter(g=>[88,90].includes(g.level)&&g.enhance===15);
+  const lv90=sc.filter(g=>g.level===90).map(norm);
+  const lv88=sc.filter(g=>g.level===88).map(norm);
+  const pieces=sc.map(norm);
+
+  const gs75=lv88.filter(p=>p.gs>=75).length+lv90.filter(p=>p.gs>=97.33).length;
+  const gs70=lv88.filter(p=>p.gs>=70).length+lv90.filter(p=>p.gs>=84.5).length;
+  const ref75=lv90.filter(p=>p.gs>=97.33).length;
+  const ref70=lv90.filter(p=>p.gs>=84.5).length;
+
+  const spd=t=>({all:pieces.filter(p=>p.speed>=t).length, ss:pieces.filter(p=>p.speed>=t&&p.set==='Speed').length});
+
+  const cats={TopSpeed:0,Spd:0,DPS:0,Tank:0,'Eff/Er':0,Bruiser:0};
+  const cnts={TopSpeed:0,Spd:0,DPS:0,Tank:0,'Eff/Er':0,Bruiser:0};
+  const bySet={}, bySlot={};
+  for(const p of pieces){
+    const s=score(p);
+    let pieceTotal=0;
+    for(const[k,v]of Object.entries(s))if(v>0){cats[k]+=v;cnts[k]++;pieceTotal+=v;}
+    if(pieceTotal>0){
+      const setKey=p.set||'Other';
+      const slotKey=p.slot||'other';
+      bySet[setKey]=(bySet[setKey]||0)+pieceTotal;
+      bySlot[slotKey]=(bySlot[slotKey]||0)+pieceTotal;
+    }
+  }
+  const total=Math.round(Object.values(cats).reduce((a,b)=>a+b,0));
+  return{total,heroCount:heroes.length,scoredCount:sc.length,gs75,gs70,ref75,ref70,
+    spd15:spd(15),spd18:spd(18),spd20:spd(20),spd22:spd(22),spd25:spd(25),cats,cnts,bySet,bySlot};
+}
+
+// ── Radar ───────────────────────────────────────────────────────────
+function drawRadar(cats){
+  const cv=document.getElementById('radar'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,cx=W/2,cy=H/2,R=W/2-42;
+  ctx.clearRect(0,0,W,H);
+  const defs=[{k:'DPS',l:'DPS',c:'#e05656'},{k:'Spd',l:'Spd',c:'#4fc3f7'},{k:'TopSpeed',l:'TopSpeed',c:'#f7a94f'},{k:'Bruiser',l:'Bruiser',c:'#c084fc'},{k:'Eff/Er',l:'Eff/Er',c:'#4fd48a'},{k:'Tank',l:'Tank',c:'#60a5fa'}];
+  const n=defs.length,mx=Math.max(...Object.values(cats),1);
+  const ang=i=>Math.PI*2/n*i-Math.PI/2;
+  const pt=(i,r)=>[cx+r*Math.cos(ang(i)),cy+r*Math.sin(ang(i))];
+  for(const f of[.2,.4,.6,.8,1]){ctx.beginPath();for(let i=0;i<n;i++){const[x,y]=pt(i,R*f);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.stroke();}
+  for(let i=0;i<n;i++){ctx.beginPath();ctx.moveTo(cx,cy);const[x,y]=pt(i,R);ctx.lineTo(x,y);ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=1;ctx.stroke();}
+  ctx.beginPath();for(let i=0;i<n;i++){const r=(cats[defs[i].k]||0)/mx*R;const[x,y]=pt(i,r);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.fillStyle='rgba(79,195,247,.13)';ctx.fill();ctx.strokeStyle='rgba(79,195,247,.7)';ctx.lineWidth=1.5;ctx.stroke();
+  for(let i=0;i<n;i++){const r=(cats[defs[i].k]||0)/mx*R;const[x,y]=pt(i,r);ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle=defs[i].c;ctx.fill();ctx.strokeStyle='#0a0c10';ctx.lineWidth=1.5;ctx.stroke();}
+  for(let i=0;i<n;i++){const[lx,ly]=pt(i,R+24);ctx.fillStyle=defs[i].c;ctx.font='10px monospace';ctx.textAlign='center';ctx.fillText(defs[i].l,lx,ly-4);ctx.fillStyle='#e8eaf0';ctx.font='bold 11px monospace';ctx.fillText(Math.round(cats[defs[i].k]||0),lx,ly+9);}
+  document.getElementById('leg').innerHTML=defs.map(d=>`<div class="li"><div class="ldot" style="background:${d.c};box-shadow:0 0 5px ${d.c}44"></div><span class="lname">${d.l}</span><span class="lval" style="color:${d.c}">${Math.round(cats[d.k]||0)}</span></div>`).join('');
+}
+
+// ── Render ──────────────────────────────────────────────────────────
+function render(r){
+  document.getElementById('ep').style.display='none';
+  document.getElementById('hbox').style.display='flex';
+  document.getElementById('rb').style.display='block';
+  document.getElementById('bkp').style.display='block';
+  document.getElementById('sg').style.display='grid';
+  document.getElementById('spdt').style.display='block';
+  document.getElementById('bkg').style.display='grid';
+  document.getElementById('bdp').style.display='block';
+
+  document.getElementById('tcp').textContent=r.total.toLocaleString();
+  document.getElementById('hcnt').textContent=r.heroCount.toLocaleString();
+  document.getElementById('utime').textContent=new Date().toLocaleString();
+  document.getElementById('sTot').textContent=r.scoredCount.toLocaleString();
+  document.getElementById('sHero').textContent=r.heroCount.toLocaleString();
+  document.getElementById('sG75').textContent=r.gs75;
+  document.getElementById('sG70').textContent=r.gs70;
+  document.getElementById('sR75').textContent=r.ref75;
+  document.getElementById('sR70').textContent=r.ref70;
+
+  for(const t of[15,18,20,22,25]){
+    const c=r['spd'+t];
+    document.getElementById('s'+t+'s').textContent=c.ss;
+    document.getElementById('s'+t+'a').textContent=c.all;
+  }
+  const{cats,cnts}=r;
+  [['D','DPS'],['S','Spd'],['T','TopSpeed'],['B','Bruiser'],['E','Eff/Er'],['Tn','Tank']].forEach(([id,k])=>{
+    document.getElementById('b'+id).textContent=Math.round(cats[k]);
+    document.getElementById('b'+id+'s').textContent=cnts[k]+' pieces';
+  });
+  renderBreakdownTable('bdSet', r.bySet, r.total);
+  renderBreakdownTable('bdSlot', r.bySlot, r.total);
+  drawRadar(cats);
+}
+
+const BD_COLORS=['#4fc3f7','#e05656','#f7a94f','#4fd48a','#c084fc','#60a5fa','#f5c542','#fb7185','#34d399','#a78bfa'];
+function renderBreakdownTable(elId, data, total){
+  const el=document.getElementById(elId);
+  const entries=Object.entries(data).sort((a,b)=>b[1]-a[1]);
+  const max=entries.length?entries[0][1]:1;
+  el.innerHTML=entries.map(([name,pts],i)=>{
+    const pct=total>0?(pts/total*100):0;
+    const c=BD_COLORS[i%BD_COLORS.length];
+    const w=Math.max(2,Math.round(pts/max*100));
+    return `<div class="bdrow">
+      <span class="bdname">${name}</span>
+      <div class="bdbar"><div class="bdfill" style="width:${w}%;background:${c}"></div></div>
+      <span class="bdpts" style="color:${c}">${Math.round(pts)}</span>
+      <span class="bdpct">${pct.toFixed(1)}%</span>
+    </div>`;
+  }).join('');
+}
+
+// ── File handling ───────────────────────────────────────────────────
+function process(file){
+  const e=document.getElementById('err'),pr=document.getElementById('proc');
+  e.classList.remove('show');pr.classList.add('show');
+  document.getElementById('fst').classList.add('show');
+  document.getElementById('fn').textContent=file.name+' — '+(file.size/1024).toFixed(1)+' KB';
+  const rd=new FileReader();
+  rd.onload=ev=>{setTimeout(()=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(!d.items||!Array.isArray(d.items))throw new Error('No "items" array found');
+      render(calculate(d));pr.classList.remove('show');
+    }catch(ex){pr.classList.remove('show');e.textContent='Error: '+ex.message;e.classList.add('show');}
+  },40);};
+  rd.readAsText(file);
+}
+document.getElementById('fi').addEventListener('change',e=>{if(e.target.files[0])process(e.target.files[0]);});
+const dz=document.getElementById('dz');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files[0])process(e.dataTransfer.files[0]);});
+</script>
+</body>
+</html>
