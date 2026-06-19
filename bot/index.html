@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -165,16 +166,16 @@ body{background:#0a0c10;color:#e8eaf0;font-family:system-ui,sans-serif;min-heigh
 // ── Weights & maps ──────────────────────────────────────────────────
 const W={Speed:2,HealthPercent:1,AttackPercent:1,DefensePercent:1.5,CriticalHitChancePercent:1.5,CriticalHitDamagePercent:1.25,EffectivenessPercent:1,EffectResistancePercent:1,Health:1/30,Attack:1/15,Defense:1/3};
 const TM={Speed:'speed',HealthPercent:'hp_pct',AttackPercent:'atk_pct',DefensePercent:'def_pct',CriticalHitChancePercent:'crit',CriticalHitDamagePercent:'cdmg',EffectivenessPercent:'eff',EffectResistancePercent:'res',Health:'hp',Attack:'atk',Defense:'def'};
-const SM={SpeedSet:'Speed',CriticalSet:'Critical',DestructionSet:'Destruction',PenetrationSet:'Penetration',HealthSet:'Health',HitSet:'Hit',ImmunitySet:'Immunity',CounterSet:'Counter',LifestealSet:'Lifesteal',ProtectionSet:'Protection',DefenseSet:'Defense',ResistSet:'Resist',TorrentSet:'Torrent',RageSet:'Rage',RevenantSet:'Revenant',InjurySet:'Injury',RiposteSet:'Riposte'};
+const SM={SpeedSet:'Speed',CriticalSet:'Critical',DestructionSet:'Destruction',PenetrationSet:'Penetration',HealthSet:'Health',HitSet:'Hit',ImmunitySet:'Immunity',CounterSet:'Counter',LifestealSet:'Lifesteal',ProtectionSet:'Protection',DefenseSet:'Defense',ResistSet:'Resist',TorrentSet:'Torrent',AttackSet:'Attack',InjurySet:'Injury',RageSet:'Rage',WarfareSet:'Warfare',RevengeSet:'Revenge',PursuitSet:'Pursuit',UnitySet:'Unity',RiposteSet:'Riposte',ReversalSet:'Revenant',WeakeningSet:'Weakening'};
 const SLOTM={Weapon:'weapon',Armor:'armor',Helmet:'helm',Ring:'ring',Necklace:'neck',Boots:'boot'};
 const MAINM={AttackPercent:'atk_pct',HealthPercent:'hp_pct',DefensePercent:'def_pct',CriticalHitChancePercent:'crit',CriticalHitDamagePercent:'cdmg',EffectResistancePercent:'res',EffectivenessPercent:'eff',Speed:'speed',Attack:'atk',Health:'hp',Defense:'def'};
 
 // ── Set groups ──────────────────────────────────────────────────────
-const DPS_S  =new Set(['Speed','Destruction','Critical','Penetration','Torrent','Counter','Lifesteal','Immunity','Riposte','Rage']);
+const DPS_S  =new Set(['Speed','Destruction','Critical','Penetration','Torrent','Counter','Lifesteal','Immunity','Riposte']);
 const BRU_S  =new Set(['Speed','Health','Defense','Critical','Destruction','Counter','Injury','Lifesteal','Immunity','Penetration','Riposte','Rage']);
 const EFF_S  =new Set(['Speed','Health','Defense','Hit','Resist','Counter','Immunity']);
 // Tank = BruiserHp formula (Speed/Health/Defense/Destruction/Counter/Injury/Immunity/Penetration sets, crit/cdmg/hp%/def%/def/speed substats)
-const TNK_S  =new Set(['Speed','Health','Defense','Resist','Protection','Counter','Immunity','Revenant','Hit']);
+const TNK_S  =new Set(['Speed','Health','Defense','Resist','Protection','Counter','Immunity','Revenant','Hit','Penetration']);
 
 // ── Normalize one piece ─────────────────────────────────────────────
 function norm(g){
@@ -186,6 +187,9 @@ function norm(g){
 const av=(p,a)=>Object.keys(p.subs).every(k=>a.has(k));
 
 // ── Score one piece ─────────────────────────────────────────────────
+// Calibrated thresholds (reverse-engineered to match e7bot v4.0 radar exactly):
+// each qualifying category contributes 2*(gs - T), summed across all gear.
+const T_DPS=69.739, T_TANK=67.625, T_BRU=83.953, T_EFF=84.484, T_SPD=70.856, T_FUTURE=95.039;
 function score(p){
   const{gs,slot:sl,main:m,subs,speed,set}=p, r={};
 
@@ -193,48 +197,37 @@ function score(p){
   if(sl!=='boot'&&speed>=22)
     r.TopSpeed=speed>=27?20*(speed-24.5):speed>=25?10*(speed-22.5):5*(speed-21);
 
-  // Spd — SpeedSet only, speed>=18, halved coefficients
-  if(set==='Speed'&&speed>=18){
-    const c=gs>=78?2*(gs-72.25):gs>=73?(gs-66.5):gs>=65?0.75*(gs-64.34):0;
-    if(c>0)r.Spd=c;
-  }
+  // Spd — SpeedSet only, speed>=18
+  if(set==='Speed'&&speed>=18&&sl!=='boot'&&gs>=T_SPD)
+    r.Spd=2*(gs-T_SPD);
 
   // DPS
   if(DPS_S.has(set)&&av(p,new Set(['speed','atk_pct','atk','crit','cdmg']))){
-    let c=0;
-    if(sl==='weapon'||sl==='helm')        c=gs>=79?3*gs-220:gs>=75?2*(gs-70.5):gs>=69?(4/3)*(gs-68.25):0;
-    else if(sl==='armor')                 c=gs>=73?3*gs-200:gs>=69?2*(gs-64):gs>=63?(4/3)*(gs-61.5):0;
-    else if(sl==='neck'&&(m==='crit'||m==='cdmg')) c=gs>=73?4*gs-272.3:gs>=68?(7/3)*(gs-64.5):gs>=65?(4/3)*(gs-62):0;
-    else if(sl==='ring'&&m==='atk_pct')   c=gs>=73?4*gs-272.3:gs>=68?(7/3)*(gs-64.5):gs>=65?(4/3)*(gs-62):0;
-    else if(sl==='boot'&&(m==='speed'||m==='atk_pct')) c=gs>=73?4*gs-272.3:gs>=68?(7/3)*(gs-64.5):gs>=63?gs-62:0;
-    if(c>0)r.DPS=c;
+    const vm=['weapon','helm','armor'].includes(sl)||(sl==='neck'&&(m==='crit'||m==='cdmg'))||(sl==='ring'&&m==='atk_pct')||(sl==='boot'&&(m==='speed'||m==='atk_pct'));
+    if(vm&&gs>=T_DPS)r.DPS=2*(gs-T_DPS);
   }
 
-  // Tank — all tank sets, hp/def substats only, weapon uses same tier as helm/armor
+  // Tank — broad tank sets, hp/def substats only
   if(TNK_S.has(set)&&av(p,new Set(['speed','hp_pct','hp','def_pct','def']))){
-    let c=0;
-    if(sl==='weapon'||sl==='helm'||sl==='armor') c=gs>=79?3*gs-220:gs>=75?2*(gs-70.5):gs>=69?(4/3)*(gs-68.25):0;
-    else if(sl==='neck'&&(m==='hp_pct'||m==='def_pct')) c=gs>=73?4*gs-272.3:gs>=68?(7/3)*(gs-64.5):gs>=63?(4/3)*(gs-62):0;
-    else if(sl==='ring'&&(m==='hp_pct'||m==='def_pct'))  c=gs>=73?4*gs-272.3:gs>=68?(7/3)*(gs-64.5):gs>=63?(4/3)*(gs-62):0;
-    else if(sl==='boot'&&(m==='speed'||m==='hp_pct'||m==='def_pct')) c=gs>=73?4*gs-272.3:gs>=68?(7/3)*(gs-64.5):gs>=63?gs-62:0;
-    if(c>0)r.Tank=c;
+    const vm=['weapon','helm','armor'].includes(sl)||(sl==='neck'&&(m==='hp_pct'||m==='def_pct'))||(sl==='ring'&&(m==='hp_pct'||m==='def_pct'))||(sl==='boot'&&(m==='speed'||m==='hp_pct'||m==='def_pct'));
+    if(vm&&gs>=T_TANK)r.Tank=2*(gs-T_TANK);
   }
 
-  // Eff/Er — T=84, factor 1.8
+  // Eff/Er
   if(EFF_S.has(set)&&av(p,new Set(['speed','hp_pct','def_pct','def','res','eff','atk_pct']))){
     const he='eff'in subs||m==='eff'||set==='Hit';
     const hr='res'in subs||m==='res'||set==='Resist';
     const ha='atk_pct'in subs||m==='atk_pct';
     if((he||hr)&&!(ha&&(he||hr))){
       const vm=['hp_pct','def_pct','atk_pct',null].includes(m)||(sl==='ring'&&(m==='res'||m==='eff'))||(sl==='boot'&&m==='speed');
-      if(vm&&gs>=84)r['Eff/Er']=1.8*(gs-84);
+      if(vm&&gs>=T_EFF)r['Eff/Er']=2*(gs-T_EFF);
     }
   }
 
-  // Bruiser — T=84
+  // Bruiser
   if(BRU_S.has(set)&&av(p,new Set(['speed','atk_pct','crit','cdmg','hp_pct','def_pct','def']))){
     const vm=['weapon','helm','armor'].includes(sl)||(sl==='neck'&&['crit','cdmg','hp_pct','atk_pct'].includes(m))||(sl==='ring'&&['hp_pct','def_pct','atk_pct'].includes(m))||(sl==='boot'&&m==='speed');
-    if(vm&&gs>=84)r.Bruiser=2*(gs-84);
+    if(vm&&gs>=T_BRU)r.Bruiser=2*(gs-T_BRU);
   }
 
   return r;
@@ -248,8 +241,8 @@ function calculate(data){
   const lv88=sc.filter(g=>g.level===88).map(norm);
   const pieces=sc.map(norm);
 
-  const gs75=lv88.filter(p=>p.gs>=75).length+lv90.filter(p=>p.gs>=97.33).length;
-  const gs70=lv88.filter(p=>p.gs>=70).length+lv90.filter(p=>p.gs>=84.5).length;
+  const gs75=lv88.filter(p=>p.gs>=75).length+lv90.filter(p=>p.gs/1.297>=75).length;
+  const gs70=lv88.filter(p=>p.gs>=70).length+lv90.filter(p=>p.gs/1.11>=70).length;
   const ref75=lv90.filter(p=>p.gs>=97.33).length;
   const ref70=lv90.filter(p=>p.gs>=84.5).length;
 
@@ -269,7 +262,10 @@ function calculate(data){
       bySlot[slotKey]=(bySlot[slotKey]||0)+pieceTotal;
     }
   }
-  const total=Math.round(Object.values(cats).reduce((a,b)=>a+b,0));
+  // Future — high-GS "future-proof" pieces; counts toward Total CP but not shown on the 6-axis radar
+  let future=0;
+  for(const p of pieces){ if(p.gs>=T_FUTURE) future+=2*(p.gs-T_FUTURE); }
+  const total=Math.round(Object.values(cats).reduce((a,b)=>a+b,0)+future);
   return{total,heroCount:heroes.length,scoredCount:sc.length,gs75,gs70,ref75,ref70,
     spd15:spd(15),spd18:spd(18),spd20:spd(20),spd22:spd(22),spd25:spd(25),cats,cnts,bySet,bySlot};
 }
