@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -83,7 +82,7 @@ body{background:#0a0c10;color:#e8eaf0;font-family:system-ui,sans-serif;min-heigh
 <body>
 <div class="header">
   <h1>E7 · CP STANDARD</h1>
-  <span class="ver">v4.0 · 百里战力</span>
+  <span class="ver">v5.0 · Version discord bot</span>
 </div>
 <div class="main">
   <div>
@@ -166,16 +165,19 @@ body{background:#0a0c10;color:#e8eaf0;font-family:system-ui,sans-serif;min-heigh
 // ── Weights & maps ──────────────────────────────────────────────────
 const W={Speed:2,HealthPercent:1,AttackPercent:1,DefensePercent:1.5,CriticalHitChancePercent:1.5,CriticalHitDamagePercent:1.25,EffectivenessPercent:1,EffectResistancePercent:1,Health:1/30,Attack:1/15,Defense:1/3};
 const TM={Speed:'speed',HealthPercent:'hp_pct',AttackPercent:'atk_pct',DefensePercent:'def_pct',CriticalHitChancePercent:'crit',CriticalHitDamagePercent:'cdmg',EffectivenessPercent:'eff',EffectResistancePercent:'res',Health:'hp',Attack:'atk',Defense:'def'};
-const SM={SpeedSet:'Speed',CriticalSet:'Critical',DestructionSet:'Destruction',PenetrationSet:'Penetration',HealthSet:'Health',HitSet:'Hit',ImmunitySet:'Immunity',CounterSet:'Counter',LifestealSet:'Lifesteal',ProtectionSet:'Protection',DefenseSet:'Defense',ResistSet:'Resist',TorrentSet:'Torrent',AttackSet:'Attack',InjurySet:'Injury',RageSet:'Rage',WarfareSet:'Warfare',RevengeSet:'Revenge',PursuitSet:'Pursuit',UnitySet:'Unity',RiposteSet:'Riposte',ReversalSet:'Revenant',WeakeningSet:'Weakening'};
+const SM={SpeedSet:'Speed',CriticalSet:'Critical',DestructionSet:'Destruction',PenetrationSet:'Penetration',HealthSet:'Health',HitSet:'Hit',ImmunitySet:'Immunity',CounterSet:'Counter',LifestealSet:'Lifesteal',ProtectionSet:'Protection',DefenseSet:'Defense',ResistSet:'Resist',TorrentSet:'Torrent',AttackSet:'Attack',InjurySet:'Injury',RageSet:'Fervor',WarfareSet:'Warfare',RevengeSet:'Revenge',PursuitSet:'Pursuit',UnitySet:'Unity',RiposteSet:'Riposte',ReversalSet:'Revenant',WeakeningSet:'Weakening'};
 const SLOTM={Weapon:'weapon',Armor:'armor',Helmet:'helm',Ring:'ring',Necklace:'neck',Boots:'boot'};
 const MAINM={AttackPercent:'atk_pct',HealthPercent:'hp_pct',DefensePercent:'def_pct',CriticalHitChancePercent:'crit',CriticalHitDamagePercent:'cdmg',EffectResistancePercent:'res',EffectivenessPercent:'eff',Speed:'speed',Attack:'atk',Health:'hp',Defense:'def'};
 
-// ── Set groups ──────────────────────────────────────────────────────
-const DPS_S  =new Set(['Speed','Destruction','Critical','Penetration','Torrent','Counter','Lifesteal','Immunity','Riposte']);
-const BRU_S  =new Set(['Speed','Health','Defense','Critical','Destruction','Counter','Injury','Lifesteal','Immunity','Penetration','Riposte','Rage']);
-const EFF_S  =new Set(['Speed','Health','Defense','Hit','Resist','Counter','Immunity']);
-// Tank = BruiserHp formula (Speed/Health/Defense/Destruction/Counter/Injury/Immunity/Penetration sets, crit/cdmg/hp%/def%/def/speed substats)
-const TNK_S  =new Set(['Speed','Health','Defense','Resist','Protection','Counter','Immunity','Revenant','Hit','Penetration']);
+// ── Set groups (e7bot v5.0) ─────────────────────────────────────────
+// DPS sets (union of DPS + DPS-Guaranteed-Crit rows)
+const DPS_S  =new Set(['Speed','Destruction','Critical','Penetration','Fervor','Torrent','Counter','Lifesteal','Immunity','Riposte','Warfare']);
+// Bruiser sets (union of Bruiser, Bruiser-Hp/Def, Bruiser-Flat rows)
+const BRU_S  =new Set(['Health','Defense','Speed','Critical','Destruction','Counter','Injury','Lifesteal','Immunity','Penetration','Riposte','Pursuit','Fervor','Warfare']);
+// Eff/Er sets (union of Eff/Er + Acc-Tank rows)
+const EFF_S  =new Set(['Speed','Health','Defense','Hit','Resist','Counter','Immunity','Pursuit','Weakening']);
+// Tank sets (union of Res Tank + Pure Tank rows)
+const TNK_S  =new Set(['Speed','Health','Defense','Resist','Protection','Counter','Immunity','Revenant','Warfare','Pursuit']);
 
 // ── Normalize one piece ─────────────────────────────────────────────
 function norm(g){
@@ -187,9 +189,9 @@ function norm(g){
 const av=(p,a)=>Object.keys(p.subs).every(k=>a.has(k));
 
 // ── Score one piece ─────────────────────────────────────────────────
-// Calibrated thresholds (reverse-engineered to match e7bot v4.0 radar exactly):
+// Calibrated thresholds (reverse-engineered to match e7bot v5.0 radar exactly):
 // each qualifying category contributes 2*(gs - T), summed across all gear.
-const T_DPS=69.739, T_TANK=67.625, T_BRU=83.953, T_EFF=84.484, T_SPD=70.856, T_FUTURE=95.039;
+const T_DPS=71.076, T_TANK=67.061, T_BRU=81.970, T_EFF=85.539, T_SPD=73.123, T_FUTURE=95.069;
 function score(p){
   const{gs,slot:sl,main:m,subs,speed,set}=p, r={};
 
