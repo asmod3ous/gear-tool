@@ -77,12 +77,83 @@ body{background:#0a0c10;color:#e8eaf0;font-family:system-ui,sans-serif;min-heigh
 .bdpts{min-width:48px;text-align:right;font-family:monospace;font-weight:700;flex-shrink:0}
 .bdpct{min-width:38px;text-align:right;color:#6b7280;font-family:monospace;font-size:11px;flex-shrink:0}
 @media(max-width:820px){.main{grid-template-columns:1fr;padding:10px}.bkg{grid-template-columns:repeat(2,1fr)}.bignum{font-size:42px}.bdgrid{grid-template-columns:1fr}}
+/* ── Auth + cloud UI ── */
+.header{justify-content:space-between}
+.authbar{display:flex;align-items:center;gap:10px;margin-left:auto}
+.btn{font-family:inherit;font-size:12px;font-weight:600;border:1px solid #252a35;background:#181c24;color:#e8eaf0;padding:7px 13px;border-radius:6px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:7px}
+.btn:hover{border-color:#4fc3f7;background:rgba(79,195,247,.06)}
+.btn.primary{background:#4fc3f7;color:#08263a;border-color:#4fc3f7}
+.btn.primary:hover{background:#7fd4fb}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-g{width:15px;height:15px;flex-shrink:0}
+.userchip{display:flex;align-items:center;gap:8px;font-size:12px;color:#e8eaf0}
+.userchip img{width:26px;height:26px;border-radius:50%;border:1px solid #252a35}
+.uname{font-weight:600}.uname b{color:#4fc3f7}
+.hidden{display:none!important}
+.savebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 18px;border-top:1px solid #252a35}
+.savebar .hint{font-size:11px;color:#6b7280}
+.pubtoggle{display:flex;align-items:center;gap:6px;font-size:12px;color:#9aa3b2;cursor:pointer;user-select:none}
+.pubtoggle input{accent-color:#4fc3f7;width:14px;height:14px;cursor:pointer}
+.histrow,.lbrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.histrow:last-child,.lbrow:last-child{border:none}
+.histdate{color:#6b7280;font-family:monospace;font-size:11px;min-width:120px}
+.histcp{font-family:monospace;font-weight:700;color:#f5c542;min-width:60px}
+.histcats{color:#9aa3b2;font-family:monospace;font-size:11px;flex:1}
+.lbrank{font-family:monospace;font-weight:700;color:#6b7280;min-width:30px;text-align:right}
+.lbrank.top{color:#f5c542}
+.lbname{flex:1;font-weight:600}
+.lbname.me{color:#4fc3f7}
+.lbcp{font-family:monospace;font-weight:700;color:#f5c542;min-width:60px;text-align:right}
+.lbcats{color:#6b7280;font-family:monospace;font-size:10px;min-width:230px;text-align:right}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#181c24;border:1px solid #4fc3f7;color:#e8eaf0;padding:11px 20px;border-radius:8px;font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.5);z-index:1000;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:900}
+.modal{background:#111318;border:1px solid #252a35;border-radius:10px;padding:24px;width:340px;max-width:90vw}
+.modal h3{font-size:15px;margin-bottom:6px}
+.modal p{font-size:12px;color:#6b7280;margin-bottom:14px}
+.modal input{width:100%;background:#181c24;border:1px solid #252a35;border-radius:6px;color:#e8eaf0;padding:9px 12px;font-size:13px;font-family:inherit;margin-bottom:14px}
+.modal input:focus{outline:none;border-color:#4fc3f7}
+.modal .row{display:flex;gap:8px;justify-content:flex-end}
+.empty-sm{color:#4a5160;font-size:12px;font-family:monospace;padding:14px 0;text-align:center}
+.tabs{display:flex;gap:4px;padding:0 18px;border-bottom:1px solid #252a35}
+.tab{font-family:monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;padding:11px 12px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:#4fc3f7;border-bottom-color:#4fc3f7}
+/* comparison legend */
+.cmp-head{display:flex;align-items:center;gap:6px;font-size:11px;font-family:monospace;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid #252a35}
+.cmp-you{color:#4fc3f7;font-weight:700}
+.cmp-vs{color:#6b7280}
+.cmp-them{color:#f5c542;font-weight:700;flex:1}
+.cmp-clear{background:none;border:1px solid #252a35;color:#9aa3b2;border-radius:5px;cursor:pointer;font-size:10px;padding:2px 7px}
+.cmp-clear:hover{border-color:#e05656;color:#e05656}
+.cmp-li{font-size:11px}
+.cmp-li .lname{min-width:54px}
+.cmp-mine{font-family:monospace;font-weight:700;color:#4fc3f7;min-width:38px;text-align:right}
+.cmp-their{font-family:monospace;font-weight:700;color:#f5c542;min-width:38px;text-align:right}
+.cmp-diff{font-family:monospace;font-weight:700;min-width:42px;text-align:right}
+.cmp-total{border-top:1px solid #252a35;margin-top:5px;padding-top:6px}
+.cmp-total .lname{color:#9aa3b2}
+.lbrow{cursor:pointer;border-radius:5px;padding-left:6px;padding-right:6px}
+.lbrow:hover{background:rgba(79,195,247,.06)}
+.lbrow .vsbadge{font-size:9px;font-family:monospace;color:#4fc3f7;border:1px solid #4fc3f7;border-radius:4px;padding:1px 5px;opacity:0}
+.lbrow:hover .vsbadge{opacity:1}
 </style>
 </head>
 <body>
 <div class="header">
   <h1>E7 · CP STANDARD</h1>
-  <span class="ver">v5.0 · Version discord bot</span>
+  <span class="ver">v5.0 · Discord bot version</span>
+  <div class="authbar" id="authbar">
+    <button class="btn primary" id="loginBtn">
+      <svg class="btn-g" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.1 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 18.9 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.1 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.6l6.2 5.2C39.9 35.5 44 30.3 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+      Sign in with Google
+    </button>
+    <div class="userchip hidden" id="userchip">
+      <img id="uphoto" alt="">
+      <span class="uname">Player: <b id="uname">—</b></span>
+      <button class="btn" id="editNameBtn" title="Edit player name">✎</button>
+      <button class="btn" id="logoutBtn">Sign out</button>
+    </div>
+  </div>
 </div>
 <div class="main">
   <div>
@@ -117,15 +188,22 @@ body{background:#0a0c10;color:#e8eaf0;font-family:system-ui,sans-serif;min-heigh
     </div>
   </div>
   <div class="rp">
-    <div class="hbox panel" id="hbox">
-      <div>
-        <div class="blbl">Total CP Score</div>
-        <div class="bignum" id="tcp">—</div>
-        <div class="bsub">Updated <span id="utime">—</span></div>
+    <div class="hbox panel" id="hbox" style="flex-direction:column;align-items:stretch;gap:0;padding:0">
+      <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:22px 26px">
+        <div>
+          <div class="blbl">Total CP Score</div>
+          <div class="bignum" id="tcp">—</div>
+          <div class="bsub">Updated <span id="utime">—</span></div>
+        </div>
+        <div style="flex:1">
+          <div class="blbl">Heroes</div>
+          <div style="font-size:24px;font-weight:600" id="hcnt">—</div>
+        </div>
       </div>
-      <div style="flex:1">
-        <div class="blbl">Heroes</div>
-        <div style="font-size:24px;font-weight:600" id="hcnt">—</div>
+      <div class="savebar">
+        <button class="btn primary" id="saveBtn" disabled>☁ Save my progress</button>
+        <label class="pubtoggle"><input type="checkbox" id="pubChk"> Show on public leaderboard</label>
+        <span class="hint" id="saveHint">Sign in to save &amp; compare</span>
       </div>
     </div>
     <div class="panel" id="ep"><div class="ep"><div class="ep-ico">◈</div><div class="ep-txt">Upload gear.txt to calculate CP</div></div></div>
@@ -157,6 +235,16 @@ body{background:#0a0c10;color:#e8eaf0;font-family:system-ui,sans-serif;min-heigh
             <div id="bdSlot"></div>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="panel hidden" id="cloudPanel" style="overflow:hidden">
+      <div class="tabs">
+        <div class="tab active" id="tabHist">My History</div>
+        <div class="tab" id="tabLb">Leaderboard</div>
+      </div>
+      <div style="padding:14px 18px 16px">
+        <div id="histView"><div class="empty-sm" id="histEmpty">No saved snapshots yet — calculate &amp; hit “Save my progress”.</div><div id="histList"></div></div>
+        <div id="lbView" class="hidden"><div class="empty-sm" id="lbEmpty">No public players yet.</div><div id="lbList"></div></div>
       </div>
     </div>
   </div>
@@ -273,24 +361,62 @@ function calculate(data){
 }
 
 // ── Radar ───────────────────────────────────────────────────────────
+let COMPARE=null; // {name, cats} or null
 function drawRadar(cats){
   const cv=document.getElementById('radar'),ctx=cv.getContext('2d');
   const W=cv.width,H=cv.height,cx=W/2,cy=H/2,R=W/2-42;
   ctx.clearRect(0,0,W,H);
   const defs=[{k:'DPS',l:'DPS',c:'#e05656'},{k:'Spd',l:'Spd',c:'#4fc3f7'},{k:'TopSpeed',l:'TopSpeed',c:'#f7a94f'},{k:'Bruiser',l:'Bruiser',c:'#c084fc'},{k:'Eff/Er',l:'Eff/Er',c:'#4fd48a'},{k:'Tank',l:'Tank',c:'#60a5fa'}];
-  const n=defs.length,mx=Math.max(...Object.values(cats),1);
+  const n=defs.length;
+  // scale considers both polygons so the comparison fits
+  let allVals=Object.values(cats);
+  if(COMPARE)allVals=allVals.concat(defs.map(d=>COMPARE.cats[d.k]||0));
+  const mx=Math.max(...allVals,1);
   const ang=i=>Math.PI*2/n*i-Math.PI/2;
   const pt=(i,r)=>[cx+r*Math.cos(ang(i)),cy+r*Math.sin(ang(i))];
   for(const f of[.2,.4,.6,.8,1]){ctx.beginPath();for(let i=0;i<n;i++){const[x,y]=pt(i,R*f);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.stroke();}
   for(let i=0;i<n;i++){ctx.beginPath();ctx.moveTo(cx,cy);const[x,y]=pt(i,R);ctx.lineTo(x,y);ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=1;ctx.stroke();}
-  ctx.beginPath();for(let i=0;i<n;i++){const r=(cats[defs[i].k]||0)/mx*R;const[x,y]=pt(i,r);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.fillStyle='rgba(79,195,247,.13)';ctx.fill();ctx.strokeStyle='rgba(79,195,247,.7)';ctx.lineWidth=1.5;ctx.stroke();
-  for(let i=0;i<n;i++){const r=(cats[defs[i].k]||0)/mx*R;const[x,y]=pt(i,r);ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle=defs[i].c;ctx.fill();ctx.strokeStyle='#0a0c10';ctx.lineWidth=1.5;ctx.stroke();}
+  // helper to draw a polygon
+  function poly(getVal,fill,stroke,dotColors){
+    ctx.beginPath();for(let i=0;i<n;i++){const r=(getVal(i)||0)/mx*R;const[x,y]=pt(i,r);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();
+    ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke();
+    for(let i=0;i<n;i++){const r=(getVal(i)||0)/mx*R;const[x,y]=pt(i,r);ctx.beginPath();ctx.arc(x,y,3.5,0,Math.PI*2);ctx.fillStyle=dotColors?dotColors[i]:stroke;ctx.fill();ctx.strokeStyle='#0a0c10';ctx.lineWidth=1.2;ctx.stroke();}
+  }
+  // comparison polygon (drawn first, behind)
+  if(COMPARE){
+    poly(i=>COMPARE.cats[defs[i].k],'rgba(245,197,66,.10)','rgba(245,197,66,.75)',defs.map(()=> '#f5c542'));
+  }
+  // my polygon
+  poly(i=>cats[defs[i].k],'rgba(79,195,247,.13)','rgba(79,195,247,.8)',defs.map(d=>d.c));
+  // axis labels + my value
   for(let i=0;i<n;i++){const[lx,ly]=pt(i,R+24);ctx.fillStyle=defs[i].c;ctx.font='10px monospace';ctx.textAlign='center';ctx.fillText(defs[i].l,lx,ly-4);ctx.fillStyle='#e8eaf0';ctx.font='bold 11px monospace';ctx.fillText(Math.round(cats[defs[i].k]||0),lx,ly+9);}
-  document.getElementById('leg').innerHTML=defs.map(d=>`<div class="li"><div class="ldot" style="background:${d.c};box-shadow:0 0 5px ${d.c}44"></div><span class="lname">${d.l}</span><span class="lval" style="color:${d.c}">${Math.round(cats[d.k]||0)}</span></div>`).join('');
+  // legend
+  if(COMPARE){
+    document.getElementById('leg').innerHTML=
+      `<div class="cmp-head"><span class="cmp-you">You</span><span class="cmp-vs">vs</span><span class="cmp-them">${COMPARE.name.replace(/</g,'&lt;')}</span>
+       <button class="cmp-clear" id="cmpClear">✕</button></div>`+
+      defs.map(d=>{
+        const mine=Math.round(cats[d.k]||0), theirs=Math.round(COMPARE.cats[d.k]||0), diff=mine-theirs;
+        const dc=diff>0?'#4fd48a':diff<0?'#e05656':'#6b7280';
+        const ds=diff>0?'+'+diff:diff;
+        return `<div class="li cmp-li"><div class="ldot" style="background:${d.c}"></div><span class="lname">${d.l}</span>
+          <span class="cmp-mine">${mine}</span><span class="cmp-their">${theirs}</span>
+          <span class="cmp-diff" style="color:${dc}">${ds}</span></div>`;
+      }).join('')+
+      (()=>{const mt=cats.DPS+cats.Spd+cats.TopSpeed+cats.Bruiser+cats['Eff/Er']+cats.Tank;
+        const myTot=Math.round(mt), thTot=defs.reduce((a,d)=>a+(COMPARE.cats[d.k]||0),0);
+        const diff=myTot-Math.round(thTot),dc=diff>0?'#4fd48a':diff<0?'#e05656':'#6b7280';
+        return `<div class="li cmp-li cmp-total"><span class="lname">Σ radar</span><span class="cmp-mine">${myTot}</span><span class="cmp-their">${Math.round(thTot)}</span><span class="cmp-diff" style="color:${dc}">${diff>0?'+'+diff:diff}</span></div>`;})();
+    const cc=document.getElementById('cmpClear');if(cc)cc.onclick=()=>{COMPARE=null;drawRadar(cats);};
+  }else{
+    document.getElementById('leg').innerHTML=defs.map(d=>`<div class="li"><div class="ldot" style="background:${d.c};box-shadow:0 0 5px ${d.c}44"></div><span class="lname">${d.l}</span><span class="lval" style="color:${d.c}">${Math.round(cats[d.k]||0)}</span></div>`).join('');
+  }
 }
 
 // ── Render ──────────────────────────────────────────────────────────
+let LAST_RESULT=null;
 function render(r){
+  LAST_RESULT=r;
   document.getElementById('ep').style.display='none';
   document.getElementById('hbox').style.display='flex';
   document.getElementById('rb').style.display='block';
@@ -323,6 +449,7 @@ function render(r){
   renderBreakdownTable('bdSet', r.bySet, r.total);
   renderBreakdownTable('bdSlot', r.bySlot, r.total);
   drawRadar(cats);
+  if(window.refreshSaveState)window.refreshSaveState();
 }
 
 const BD_COLORS=['#4fc3f7','#e05656','#f7a94f','#4fd48a','#c084fc','#60a5fa','#f5c542','#fb7185','#34d399','#a78bfa'];
@@ -364,6 +491,180 @@ const dz=document.getElementById('dz');
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
 dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
 dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files[0])process(e.dataTransfer.files[0]);});
+</script>
+
+<!-- ════════════════ FIREBASE (login + cloud save) ════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, collection, addDoc, getDocs,
+  query, where, orderBy, limit, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  STEP 1 — paste your Firebase project config here.            ║
+// ║  Get it from: Firebase console → Project settings → "Your     ║
+// ║  apps" → Web app → SDK setup and configuration → Config.      ║
+// ╚══════════════════════════════════════════════════════════════╝
+const firebaseConfig = {
+  apiKey: "AIzaSyCtTfi5qztPLp4RED_-pTmfb-2y8xHUNck",
+  authDomain: "e7-cp-standard.firebaseapp.com",
+  projectId: "e7-cp-standard",
+  storageBucket: "e7-cp-standard.firebasestorage.app",
+  messagingSenderId: "645507107973",
+  appId: "1:645507107973:web:d129234e9b5df5abd7adec",
+  measurementId: "G-6W6YL85KYE"
+};
+
+const CONFIGURED = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("REPLACE");
+let auth, db, provider, currentUser=null, playerName="";
+
+// ── tiny helpers ──
+const $=id=>document.getElementById(id);
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300);},2600);}
+function catsRounded(r){const c=r.cats;return{DPS:Math.round(c.DPS),Spd:Math.round(c.Spd),TopSpeed:Math.round(c.TopSpeed),Bruiser:Math.round(c.Bruiser),'Eff/Er':Math.round(c['Eff/Er']),Tank:Math.round(c.Tank)};}
+function catStr(c){return `D${c.DPS} S${c.Spd} TS${c.TopSpeed} B${c.Bruiser} E${c['Eff/Er']} T${c.Tank}`;}
+
+// expose for render() to call
+window.refreshSaveState=()=>{
+  const ok=CONFIGURED&&currentUser&&LAST_RESULT;
+  $('saveBtn').disabled=!ok;
+  $('saveHint').textContent = !CONFIGURED ? "Firebase not configured yet (see code header)"
+    : !currentUser ? "Sign in to save & compare"
+    : !LAST_RESULT ? "Calculate a gear.txt first"
+    : "Ready to save";
+};
+
+if(!CONFIGURED){
+  // Graceful no-op mode: the calculator works fully; cloud features are disabled.
+  $('loginBtn').title="Firebase not configured — see code header";
+  window.refreshSaveState();
+}else{
+  const app=initializeApp(firebaseConfig);
+  auth=getAuth(app); db=getFirestore(app); provider=new GoogleAuthProvider();
+
+  $('loginBtn').onclick=()=>signInWithPopup(auth,provider).catch(e=>toast("Login failed: "+e.code));
+  $('logoutBtn').onclick=()=>signOut(auth);
+
+  onAuthStateChanged(auth, async user=>{
+    currentUser=user;
+    if(user){
+      $('loginBtn').classList.add('hidden');
+      $('userchip').classList.remove('hidden');
+      $('cloudPanel').classList.remove('hidden');
+      $('uphoto').src=user.photoURL||"";
+      // load or create player profile
+      const pref=doc(db,'players',user.uid);
+      const snap=await getDoc(pref);
+      if(snap.exists()&&snap.data().name){ playerName=snap.data().name; }
+      else { playerName=user.displayName||"Player"; await setDoc(pref,{name:playerName,uid:user.uid},{merge:true}); promptName(true); }
+      $('uname').textContent=playerName;
+      await loadHistory();
+    }else{
+      $('loginBtn').classList.remove('hidden');
+      $('userchip').classList.add('hidden');
+      $('cloudPanel').classList.add('hidden');
+    }
+    window.refreshSaveState();
+  });
+
+  // ── edit player name ──
+  $('editNameBtn').onclick=()=>promptName(false);
+  function promptName(first){
+    const bg=document.createElement('div');bg.className='modal-bg';
+    bg.innerHTML=`<div class="modal"><h3>${first?'Welcome! Set your':'Edit your'} player name</h3>
+      <p>This is the name shown on the public leaderboard.</p>
+      <input id="pnInput" maxlength="24" value="${playerName.replace(/"/g,'&quot;')}" placeholder="Player name">
+      <div class="row"><button class="btn" id="pnCancel">Cancel</button><button class="btn primary" id="pnSave">Save</button></div></div>`;
+    document.body.appendChild(bg);
+    const inp=bg.querySelector('#pnInput');inp.focus();inp.select();
+    bg.querySelector('#pnCancel').onclick=()=>bg.remove();
+    bg.querySelector('#pnSave').onclick=async()=>{
+      const v=inp.value.trim();if(!v){toast("Name can't be empty");return;}
+      playerName=v;$('uname').textContent=v;
+      await setDoc(doc(db,'players',currentUser.uid),{name:v},{merge:true});
+      bg.remove();toast("Name saved");
+    };
+    inp.onkeydown=e=>{if(e.key==='Enter')bg.querySelector('#pnSave').click();};
+  }
+
+  // ── save snapshot ──
+  $('saveBtn').onclick=async()=>{
+    if(!LAST_RESULT||!currentUser)return;
+    const c=catsRounded(LAST_RESULT);
+    const isPublic=$('pubChk').checked;
+    $('saveBtn').disabled=true;
+    try{
+      await addDoc(collection(db,'players',currentUser.uid,'snapshots'),{
+        cats:c, total:LAST_RESULT.total, heroes:LAST_RESULT.heroCount,
+        public:isPublic, name:playerName, uid:currentUser.uid, ts:serverTimestamp()
+      });
+      // also update a single "latest public" doc per player for the leaderboard
+      await setDoc(doc(db,'leaderboard',currentUser.uid),
+        isPublic ? {name:playerName,uid:currentUser.uid,cats:c,total:LAST_RESULT.total,ts:serverTimestamp()}
+                 : {name:playerName,uid:currentUser.uid,total:-1,hidden:true,ts:serverTimestamp()});
+      toast(isPublic?"Saved + shared to leaderboard":"Saved (private)");
+      await loadHistory();
+    }catch(e){toast("Save failed: "+e.code);}
+    $('saveBtn').disabled=false;
+  };
+
+  // ── tabs ──
+  $('tabHist').onclick=()=>{setTab('hist');};
+  $('tabLb').onclick=()=>{setTab('lb');loadLeaderboard();};
+  function setTab(t){
+    $('tabHist').classList.toggle('active',t==='hist');
+    $('tabLb').classList.toggle('active',t==='lb');
+    $('histView').classList.toggle('hidden',t!=='hist');
+    $('lbView').classList.toggle('hidden',t!=='lb');
+  }
+
+  // ── load my history ──
+  async function loadHistory(){
+    if(!currentUser)return;
+    const q=query(collection(db,'players',currentUser.uid,'snapshots'),orderBy('ts','desc'),limit(30));
+    const qs=await getDocs(q);
+    const rows=[];qs.forEach(d=>rows.push(d.data()));
+    $('histEmpty').style.display=rows.length?'none':'block';
+    $('histList').innerHTML=rows.map(s=>{
+      const d=s.ts&&s.ts.toDate?s.ts.toDate():new Date();
+      return `<div class="histrow"><span class="histdate">${d.toLocaleString()}</span>
+        <span class="histcp">${(s.total||0).toLocaleString()}</span>
+        <span class="histcats">${catStr(s.cats||{})}</span>
+        ${s.public?'<span style="color:#4fd48a;font-size:10px">public</span>':'<span style="color:#6b7280;font-size:10px">private</span>'}</div>`;
+    }).join('');
+  }
+
+  // ── load leaderboard (public only) ──
+  let LB_ROWS=[];
+  async function loadLeaderboard(){
+    const q=query(collection(db,'leaderboard'),orderBy('total','desc'),limit(100));
+    const qs=await getDocs(q);
+    const rows=[];qs.forEach(d=>{const x=d.data();if(!x.hidden&&x.total>0)rows.push(x);});
+    LB_ROWS=rows;
+    $('lbEmpty').style.display=rows.length?'none':'block';
+    $('lbList').innerHTML=rows.map((s,i)=>{
+      const me=currentUser&&s.uid===currentUser.uid;
+      return `<div class="lbrow" data-i="${i}"><span class="lbrank ${i<3?'top':''}">#${i+1}</span>
+        <span class="lbname ${me?'me':''}">${(s.name||'Player').replace(/</g,'&lt;')}</span>
+        <span class="vsbadge">vs</span>
+        <span class="lbcats">${catStr(s.cats||{})}</span>
+        <span class="lbcp">${(s.total||0).toLocaleString()}</span></div>`;
+    }).join('');
+    // click a row → overlay their radar on yours
+    $('lbList').querySelectorAll('.lbrow').forEach(el=>{
+      el.onclick=()=>{
+        if(!LAST_RESULT){toast("Calculate your gear.txt first to compare");return;}
+        const s=LB_ROWS[+el.dataset.i];
+        COMPARE={name:s.name||'Player',cats:s.cats||{}};
+        drawRadar(LAST_RESULT.cats);
+        document.getElementById('rb').scrollIntoView({behavior:'smooth',block:'center'});
+        toast("Comparing vs "+(s.name||'Player'));
+      };
+    });
+  }
+}
 </script>
 </body>
 </html>
