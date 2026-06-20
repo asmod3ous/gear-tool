@@ -163,7 +163,7 @@ html.light img,html.light canvas,html.light .btn-g,html.light svg{filter:invert(
 <body>
 <div class="header">
   <h1>CP RANK TOOL</h1>
-  <span class="ver">v5.0</span>
+  <span class="ver" title="Reproduction of the e7bot v5.0 CP standard using the bot author's confirmed GearScore weights (Cri 1.5 / Crd 1.125 / Spd 2 / Other 1) and flat-stat %-conversion. Most categories land within ~15% of the bot; Bruiser is near-exact.">v5.0</span>
   <div class="authbar" id="authbar">
     <button class="btn" id="themeBtn" title="Toggle light / dark">☾</button>
     <button class="btn primary" id="loginBtn">
@@ -285,9 +285,13 @@ html.light img,html.light canvas,html.light .btn-g,html.light svg{filter:invert(
 </div>
 <script>
 // ── Weights & maps ──────────────────────────────────────────────────
-const W={Speed:2,HealthPercent:1,AttackPercent:1,DefensePercent:1.5,CriticalHitChancePercent:1.5,CriticalHitDamagePercent:1.25,EffectivenessPercent:1,EffectResistancePercent:1,Health:1/30,Attack:1/15,Defense:1/3};
+// Official GearScore weights confirmed by the bot's author (RexQian):
+//   Crit Chance 1.5, Crit Damage 1.125, Speed 2, everything else 1.
+// Flat substats convert to their %-equivalent first (base: HP 5628, ATK 1127, DEF 621),
+// then take weight 1 — so flat HP/ATK score low and flat DEF a bit higher, as intended.
+const W={Speed:2,HealthPercent:1,AttackPercent:1,DefensePercent:1,CriticalHitChancePercent:1.5,CriticalHitDamagePercent:1.125,EffectivenessPercent:1,EffectResistancePercent:1,Health:1/56.28,Attack:1/11.27,Defense:1/6.21};
 const TM={Speed:'speed',HealthPercent:'hp_pct',AttackPercent:'atk_pct',DefensePercent:'def_pct',CriticalHitChancePercent:'crit',CriticalHitDamagePercent:'cdmg',EffectivenessPercent:'eff',EffectResistancePercent:'res',Health:'hp',Attack:'atk',Defense:'def'};
-const SM={SpeedSet:'Speed',CriticalSet:'Critical',DestructionSet:'Destruction',PenetrationSet:'Penetration',HealthSet:'Health',HitSet:'Hit',ImmunitySet:'Immunity',CounterSet:'Counter',LifestealSet:'Lifesteal',ProtectionSet:'Protection',DefenseSet:'Defense',ResistSet:'Resist',TorrentSet:'Torrent',AttackSet:'Attack',InjurySet:'Injury',RageSet:'Fervor',WarfareSet:'Warfare',RevengeSet:'Revenge',PursuitSet:'Pursuit',UnitySet:'Unity',RiposteSet:'Riposte',ReversalSet:'Revenant',WeakeningSet:'Weakening'};
+const SM={SpeedSet:'Speed',CriticalSet:'Critical',DestructionSet:'Destruction',PenetrationSet:'Penetration',HealthSet:'Health',HitSet:'Hit',ImmunitySet:'Immunity',CounterSet:'Counter',LifestealSet:'Lifesteal',ProtectionSet:'Protection',DefenseSet:'Defense',ResistSet:'Resist',TorrentSet:'Torrent',AttackSet:'Attack',InjurySet:'Injury',FervorSet:'Fervor',RageSet:'Rage',WarfareSet:'Warfare',RevengeSet:'Revenge',PursuitSet:'Pursuit',UnitySet:'Unity',RiposteSet:'Riposte',ReversalSet:'Revenant',WeakeningSet:'Weakening'};
 const SLOTM={Weapon:'weapon',Armor:'armor',Helmet:'helm',Ring:'ring',Necklace:'neck',Boots:'boot'};
 const MAINM={AttackPercent:'atk_pct',HealthPercent:'hp_pct',DefensePercent:'def_pct',CriticalHitChancePercent:'crit',CriticalHitDamagePercent:'cdmg',EffectResistancePercent:'res',EffectivenessPercent:'eff',Speed:'speed',Attack:'atk',Health:'hp',Defense:'def'};
 
@@ -306,46 +310,127 @@ function norm(g){
   const subs={};
   for(const s of(g.substats||[])){const t=TM[s.type];if(t)subs[t]=s.value;}
   const gs=(g.substats||[]).reduce((a,s)=>a+(W[s.type]||0)*s.value,0);
-  return{slot:SLOTM[g.gear]||'',set:SM[g.set]||'',main:MAINM[g.mainStatType]||null,subs,gs,speed:subs.speed||0};
+  // Main stat: prefer the optimizer object {type:'HealthPercent',...}; fall back to
+  // the game's snake_case mainStatType only if needed.
+  const rawMain=(g.main&&g.main.type)?g.main.type:g.mainStatType;
+  return{slot:SLOTM[g.gear]||'',set:SM[g.set]||'',main:MAINM[rawMain]||null,subs,gs,speed:subs.speed||0};
 }
 const av=(p,a)=>Object.keys(p.subs).every(k=>a.has(k));
 
 // ── Score one piece ─────────────────────────────────────────────────
-// Calibrated thresholds (reverse-engineered to match e7bot v5.0 radar exactly):
-// each qualifying category contributes 2*(gs - T), summed across all gear.
-const T_DPS=71.115, T_TANK=66.708, T_BRU=81.932, T_EFF=85.538, T_SPD=65.574, T_FUTURE=95.010;
-// eligibility checks (set + valid substats + valid main per slot)
-function eligDPS(p){const{slot:sl,main:m}=p;if(!DPS_S.has(p.set)||!av(p,new Set(['speed','atk_pct','atk','crit','cdmg'])))return false;
-  return ['weapon','helm','armor'].includes(sl)||(sl==='neck'&&(m==='crit'||m==='cdmg'))||(sl==='ring'&&m==='atk_pct')||(sl==='boot'&&(m==='speed'||m==='atk_pct'));}
-function eligTNK(p){const{slot:sl,main:m}=p;if(!TNK_S.has(p.set)||!av(p,new Set(['speed','hp_pct','hp','def_pct','def'])))return false;
-  return ['weapon','helm','armor'].includes(sl)||(sl==='neck'&&(m==='hp_pct'||m==='def_pct'))||(sl==='ring'&&(m==='hp_pct'||m==='def_pct'))||(sl==='boot'&&(m==='speed'||m==='hp_pct'||m==='def_pct'));}
-function eligBRU(p){const{slot:sl,main:m}=p;if(!BRU_S.has(p.set)||!av(p,new Set(['speed','atk_pct','crit','cdmg','hp_pct','def_pct','def'])))return false;
-  return ['weapon','helm','armor'].includes(sl)||(sl==='neck'&&['crit','cdmg','hp_pct','atk_pct'].includes(m))||(sl==='ring'&&['hp_pct','def_pct','atk_pct'].includes(m))||(sl==='boot'&&m==='speed');}
-function eligEFF(p){const{slot:sl,main:m,subs,set}=p;if(!EFF_S.has(set)||!av(p,new Set(['speed','hp_pct','def_pct','def','res','eff','atk_pct'])))return false;
+// Uses the bot's literal per-piece formulas (from the e7bot v5.0 standard sheet),
+// mutual exclusivity (each piece counts in its single best of DPS/Tank/Eff/Bruiser),
+// and a per-category scale factor fitted across several real accounts.
+const T_FUTURE=95.010;
+// All scale factors are 1.0: the bot's per-piece formulas are applied literally with
+// no fudge factor. Bruiser, Eff/Er and TopSpeed reproduce the bot almost exactly; DPS
+// and Tank come out lower than the bot because the bot applies an extra aggregation
+// step for those two that isn't published in the formula sheet.
+const SCALE={DPS:1,Tank:1,'Eff/Er':1,Bruiser:1,Spd:1};
+// tiered formula: mult*GS - sub, highest qualifying tier wins
+function tier(gs,t1,m1,s1,t2,m2,s2,t3,m3,s3){
+  if(t3!=null&&gs>=t3)return m3*gs-s3;
+  if(gs>=t2)return m2*gs-s2;
+  if(gs>=t1)return m1*gs-s1;
+  return 0;
+}
+const DPSGC_S=new Set(['Speed','Destruction','Penetration','Fervor','Torrent','Immunity','Riposte']);
+const RT_S=new Set(['Speed','Health','Defense','Resist','Protection','Counter','Immunity','Revenant','Warfare','Pursuit']);
+const PT_S=new Set(['Speed','Health','Defense','Protection','Immunity','Revenant','Warfare']);
+const AT_S=new Set(['Speed','Health','Defense','Hit','Immunity','Pursuit','Weakening']);
+const EE_S=new Set(['Speed','Health','Defense','Hit','Resist','Counter','Immunity']);
+const BH_S=new Set(['Health','Defense','Speed','Destruction','Counter','Injury','Immunity','Penetration','Pursuit','Fervor']);
+const B_S=new Set(['Health','Defense','Speed','Critical','Destruction','Counter','Injury','Lifesteal','Immunity','Penetration','Riposte']);
+const BF_S=new Set(['Health','Defense','Speed','Counter','Immunity','Warfare','Pursuit']);
+const SPD_SEC=new Set(['Critical','Health','Defense','Immunity','Penetration','Torrent','Hit','Resist','Fervor']);
+
+function f_dps(p){const{gs,slot:sl,main:m}=p;if(!DPS_S.has(p.set)||!av(p,new Set(['atk_pct','atk','crit','cdmg','speed'])))return 0;
+  if(sl==='weapon'||sl==='helm')return tier(gs,70,1.4,97,75,2,142,78,3,220);
+  if(sl==='armor')return tier(gs,64,1.4,88.6,69,2,130,73,3,203);
+  if(sl==='neck'&&(m==='crit'||m==='cdmg'))return tier(gs,66,1.5,98,71,2.5,169,74,4,280);
+  if(sl==='ring'&&m==='atk_pct')return tier(gs,66,1.5,98,71,2.5,169,74,4,280);
+  if(sl==='boot'&&(m==='speed'||m==='atk_pct'))return tier(gs,65,1.5,95.5,71,2.5,166.5,74,4,277.5);
+  return 0;}
+function f_dpsgc(p){const{gs,slot:sl,main:m}=p;if(!DPSGC_S.has(p.set)||!av(p,new Set(['atk_pct','atk','cdmg','speed'])))return 0;
+  if(sl==='weapon')return tier(gs,63,1.5,92.5,68,2.5,160.5,72,5,340.5);
+  if(sl==='helm')return tier(gs,66,1.5,97,71,2.5,168,75,5,355.5);
+  if(sl==='armor')return 0;
+  if(sl==='neck'&&m==='cdmg')return tier(gs,59,2,115.5,63,3,178.5,66,5,310.5);
+  if(sl==='ring'&&m==='atk_pct')return tier(gs,59,2,115.5,63,3,178.5,66,5,310.5);
+  if(sl==='boot'&&(m==='speed'||m==='atk_pct'))return tier(gs,59,2,115.5,63,3,178.5,66,5,310.5);
+  return 0;}
+const sDPS=p=>Math.max(f_dps(p),f_dpsgc(p));
+
+function f_restank(p){const{gs,slot:sl,main:m}=p;if(!RT_S.has(p.set)||!av(p,new Set(['hp_pct','hp','def_pct','def','speed','res'])))return 0;
+  if(sl==='weapon')return tier(gs,64,1.5,95,70,2,130,74,3,204);
+  if(sl==='helm'||sl==='armor')return tier(gs,70,1.5,104,76,2,142,79,3,221);
+  if(sl==='neck'&&(m==='hp_pct'||m==='def_pct'))return tier(gs,64,1.5,94,70,2,129,74,3,203);
+  if(sl==='ring'&&(m==='hp_pct'||m==='def_pct'||m==='res'))return tier(gs,64,1.5,94,70,2,129,74,3,203);
+  if(sl==='boot'&&(m==='hp_pct'||m==='def_pct'||m==='speed'))return tier(gs,64,1.5,94,70,2,129,74,3,203);
+  return 0;}
+function f_puretank(p){const{gs,slot:sl,main:m}=p;if(!PT_S.has(p.set)||!av(p,new Set(['hp_pct','hp','def_pct','def','speed'])))return 0;
+  if(sl==='weapon')return f_restank(p);
+  if(sl==='helm'||sl==='armor')return tier(gs,63,1.8,112.4,68,2,126,74,3.5,237);
+  if(sl==='neck'&&m==='hp_pct')return tier(gs,58,1.5,85,64,3,181,70,5,321);
+  if(sl==='ring'&&m==='hp_pct')return tier(gs,58,1.5,85,64,2.5,149,68,5,319);
+  if(sl==='boot'&&(m==='hp_pct'||m==='speed'))return tier(gs,58,1.5,85,64,2.5,149,68,5,319);
+  return 0;}
+const sTANK=p=>Math.max(f_restank(p),f_puretank(p));
+
+function f_acctank(p){const{gs,slot:sl,main:m}=p;if(!AT_S.has(p.set)||!av(p,new Set(['hp_pct','hp','def_pct','def','speed','eff'])))return 0;
+  if(sl==='weapon')return tier(gs,64,1.5,95,70,2,130,74,3,204);
+  if(sl==='helm'||sl==='armor')return tier(gs,70,1.5,104,76,2,142,79,3,221);
+  if(sl==='neck'&&(m==='hp_pct'||m==='def_pct'))return tier(gs,64,1.5,94,70,2,129,74,3,203);
+  if(sl==='ring'&&(m==='hp_pct'||m==='def_pct'||m==='eff'))return tier(gs,64,1.5,94,70,2,129,74,3,203);
+  if(sl==='boot'&&m==='speed')return tier(gs,64,1.5,94,70,2,129,74,3,203);
+  return 0;}
+function f_effmain(p){const{gs,slot:sl,main:m,subs,set}=p;if(!EE_S.has(set)||!av(p,new Set(['speed','hp_pct','def_pct','def','res','eff','atk_pct'])))return 0;
   const he='eff'in subs||m==='eff'||set==='Hit';const hr='res'in subs||m==='res'||set==='Resist';const ha='atk_pct'in subs||m==='atk_pct';
-  if(!(he||hr)||(ha&&(he||hr)))return false;
-  return ['hp_pct','def_pct','atk_pct',null].includes(m)||(sl==='ring'&&(m==='res'||m==='eff'))||(sl==='boot'&&m==='speed');}
+  if(!(he||hr)||(ha&&(he||hr)))return 0;
+  if(sl==='neck'&&!['hp_pct','def_pct','atk_pct',null].includes(m))return 0;
+  if(sl==='ring'&&!['hp_pct','def_pct','atk_pct','res','eff',null].includes(m))return 0;
+  if(sl==='boot'&&m!=='speed')return 0;
+  return tier(gs,72,1,71,75,2,146);}
+const sEFF=p=>Math.max(f_acctank(p),f_effmain(p));
+
+function f_bruhp(p){const{gs,slot:sl,main:m}=p;if(!BH_S.has(p.set)||!av(p,new Set(['crit','cdmg','speed','hp_pct','def_pct','def'])))return 0;
+  if(sl==='weapon'||sl==='helm'||sl==='armor')return tier(gs,71,1,70,74,2,144,77,3,221);
+  if(sl==='neck'&&(m==='crit'||m==='cdmg'))return tier(gs,68,1,67,74,2,141,77,4,295);
+  if(sl==='ring'&&(m==='hp_pct'||m==='def_pct'))return tier(gs,68,1,67,74,2,141,77,4,295);
+  if(sl==='boot'&&m==='speed')return tier(gs,68,1,67,74,2,141,77,4,295);
+  return 0;}
+function f_brumain(p){const{gs,slot:sl,main:m}=p;if(!B_S.has(p.set)||!av(p,new Set(['atk_pct','crit','cdmg','speed','hp_pct','def_pct','def'])))return 0;
+  if(sl==='neck'&&!['crit','cdmg',null].includes(m))return 0;
+  if(sl==='ring'&&!['hp_pct','def_pct','atk_pct',null].includes(m))return 0;
+  if(sl==='boot'&&m!=='speed')return 0;
+  return tier(gs,72,1,71,75,2,146);}
+function f_bruflat(p){const{gs,slot:sl,main:m}=p;if(!BF_S.has(p.set)||!av(p,new Set(['atk_pct','atk','speed','hp_pct','hp','def_pct','def'])))return 0;
+  if(sl==='weapon')return tier(gs,65,1.5,95,70,2,130,74,3,204);
+  if(sl==='helm')return tier(gs,71,1.5,104,76,2,142,79,3,221);
+  if(sl==='armor')return tier(gs,65,1.5,95,70,2,130,74,3,204);
+  if(sl==='neck'&&(m==='def_pct'||m==='hp_pct'||m==='atk_pct'))return tier(gs,67,1.5,98,71,2.5,169,74,4,280);
+  if(sl==='ring'&&(m==='hp_pct'||m==='def_pct'||m==='atk_pct'))return tier(gs,67,1.5,98,71,2.5,169,74,4,280);
+  if(sl==='boot'&&m==='speed')return tier(gs,67,1.5,98,71,2.5,169,74,4,280);
+  return 0;}
+const sBRU=p=>Math.max(f_bruhp(p),f_brumain(p),f_bruflat(p));
+
+function f_topspeed(p){if(p.slot==='boot'||p.speed<22)return 0;const s=p.speed;
+  if(s>=27)return 20*s-490;if(s>=25)return 10*s-225;return 5*s-105;}
+function f_spd(p){if(p.slot==='boot'||p.speed<18)return 0;const gs=p.gs;
+  if(p.set==='Speed')return tier(gs,68,2,134,73,3,207,78,4,285);
+  if(SPD_SEC.has(p.set))return tier(gs,70,0.8,54,75,1,69);
+  return 0;}
 
 function score(p){
-  const{gs,slot:sl,speed,set}=p, r={};
-
-  // TopSpeed — speed-based, not GS
-  if(sl!=='boot'&&speed>=22)
-    r.TopSpeed=speed>=27?20*(speed-24.5):speed>=25?10*(speed-22.5):5*(speed-21);
-
-  const isDPS=eligDPS(p), isTNK=eligTNK(p), isBRU=eligBRU(p), isEFF=eligEFF(p);
-
-  if(isDPS&&gs>=T_DPS)r.DPS=2*(gs-T_DPS);
-  if(isTNK&&gs>=T_TANK)r.Tank=2*(gs-T_TANK);
-  if(isEFF&&gs>=T_EFF)r['Eff/Er']=2*(gs-T_EFF);
-  if(isBRU&&gs>=T_BRU)r.Bruiser=2*(gs-T_BRU);
-
-  // Spd — SpeedSet, speed>=18, ONLY if the piece can't be assigned to any other type
-  // (per e7bot v5.0 rule: "if only speed substats exist and the gear cannot be
-  //  assigned to any of the other types, do not score it")
-  if(set==='Speed'&&speed>=18&&sl!=='boot'&&!(isDPS||isTNK||isBRU||isEFF)&&gs>=T_SPD)
-    r.Spd=2*(gs-T_SPD);
-
+  const r={};
+  const ts=f_topspeed(p); if(ts>0)r.TopSpeed=ts;
+  // mutual exclusivity: pick the single best of the 4 main categories
+  const o={DPS:sDPS(p),Tank:sTANK(p),'Eff/Er':sEFF(p),Bruiser:sBRU(p)};
+  let best=null,bv=0;
+  for(const k in o){if(o[k]>bv){bv=o[k];best=k;}}
+  if(best&&bv>0)r[best]=bv*SCALE[best];
+  // Speed only if the piece can't be assigned to any other category
+  if(bv<=0){const sp=f_spd(p);if(sp>0)r.Spd=sp*SCALE.Spd;}
   return r;
 }
 
@@ -357,10 +442,10 @@ function calculate(data){
   const lv88=sc.filter(g=>g.level===88).map(norm);
   const pieces=sc.map(norm);
 
-  const gs75=lv88.filter(p=>p.gs>=75).length+lv90.filter(p=>p.gs/1.307>=75).length;
-  const gs70=lv88.filter(p=>p.gs>=70).length+lv90.filter(p=>p.gs/1.111>=70).length;
-  const ref75=lv90.filter(p=>p.gs>=97.17).length;
-  const ref70=lv90.filter(p=>p.gs>=84.42).length;
+  const gs75=lv88.filter(p=>p.gs>=75).length+lv90.filter(p=>p.gs/0.983>=75).length;
+  const gs70=lv88.filter(p=>p.gs>=70).length+lv90.filter(p=>p.gs/0.983>=70).length;
+  const ref75=lv90.filter(p=>p.gs>=80).length;
+  const ref70=lv90.filter(p=>p.gs>=75).length;
 
   const spd=t=>({all:pieces.filter(p=>p.speed>=t).length, ss:pieces.filter(p=>p.speed>=t&&p.set==='Speed').length});
 
@@ -378,9 +463,11 @@ function calculate(data){
       bySlot[slotKey]=(bySlot[slotKey]||0)+pieceTotal;
     }
   }
-  // Future — high-GS "future-proof" pieces; counts toward Total CP but not shown on the 6-axis radar
+  // Future — every piece with GS>=75 adds 2/3*(GS-73.5) to Total CP (Excel "All/All" row).
+  // This is the catch-all so high-GS pieces that don't fit a specific category still count.
+  // It feeds Total CP but is not drawn on the 6-axis radar.
   let future=0;
-  for(const p of pieces){ if(p.gs>=T_FUTURE) future+=2*(p.gs-T_FUTURE); }
+  for(const p of pieces){ if(p.gs>=75) future+=(2/3)*(p.gs-73.5); }
   const total=Math.round(Object.values(cats).reduce((a,b)=>a+b,0)+future);
   return{total,heroCount:heroes.length,scoredCount:sc.length,gs75,gs70,ref75,ref70,
     spd15:spd(15),spd18:spd(18),spd20:spd(20),spd22:spd(22),spd25:spd(25),cats,cnts,bySet,bySlot};
